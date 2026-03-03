@@ -1,0 +1,16 @@
+target/
+*.class
+*.war
+*.jar
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+.factorypath
+bin/
+.DS_Store
+Thumbs.db
+*.log
+src/main/resources/db.properties
