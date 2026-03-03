@@ -1,0 +1,4 @@
+db.url=jdbc:mysql://localhost:3306/oceanview_resort?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+db.username=root
+db.password=YOUR_PASSWORD
+db.driver=com.mysql.cj.jdbc.Driver
