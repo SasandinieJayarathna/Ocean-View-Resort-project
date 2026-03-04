@@ -1,15 +1,19 @@
+<!-- Dashboard Page - Shows hotel statistics and recent reservations -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Ocean View Resort</title>
+    <!-- Link to our main stylesheet for consistent look across all pages -->
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body data-page="dashboard">
-    <!-- Navigation Bar -->
+    <!-- Navigation Bar - appears on every page so users can move between sections -->
     <nav class="navbar">
+        <!-- Hotel logo that also links back to the dashboard -->
         <a href="dashboard.html" class="logo">Ocean View</a>
+        <!-- Main navigation links to all the pages in our system -->
         <ul class="nav-links">
             <li><a href="add-reservation.html">Add Reservation</a></li>
             <li><a href="view-reservation.html">View Reservations</a></li>
@@ -17,53 +21,61 @@
             <li><a href="reports.html">Reports</a></li>
             <li><a href="help.html">Help</a></li>
         </ul>
+        <!-- Shows the logged-in user's name and a logout link -->
         <div class="user-info">
             <span id="navUserName"></span>
             <a href="logout">Logout</a>
         </div>
     </nav>
 
-    <!-- Main Content -->
+    <!-- Main Content Area -->
     <div class="main-content">
-        <!-- Welcome Section -->
+        <!-- Welcome Section - greets the user by name -->
         <h1 class="page-title">Welcome, <span id="welcomeName">User</span></h1>
 
-        <!-- Loading Spinner -->
+        <!-- Loading Spinner - shown while we wait for data from the server -->
         <div id="loading" class="loading active">
             <div class="spinner"></div>
             <p>Loading dashboard...</p>
         </div>
 
-        <!-- Stats Grid -->
+        <!-- Stats Grid - displays four stat cards with key hotel numbers -->
+        <!-- Initially hidden, shown after data loads successfully -->
         <div class="stats-grid" id="statsGrid" style="display: none;">
+            <!-- Card 1: Today's reservation count -->
             <div class="stat-card">
                 <div class="stat-value" id="todayReservations">0</div>
                 <div class="stat-label">Today's Reservations</div>
             </div>
+            <!-- Card 2: Total number of rooms in the hotel -->
             <div class="stat-card">
                 <div class="stat-value" id="totalRooms">0</div>
                 <div class="stat-label">Total Rooms</div>
             </div>
+            <!-- Card 3: How many rooms are currently available -->
             <div class="stat-card">
                 <div class="stat-value" id="availableRooms">0</div>
                 <div class="stat-label">Available Rooms</div>
             </div>
+            <!-- Card 4: Total reservations ever made -->
             <div class="stat-card">
                 <div class="stat-value" id="totalReservations">0</div>
                 <div class="stat-label">Total Reservations</div>
             </div>
         </div>
 
-        <!-- Quick Actions -->
+        <!-- Quick Actions - shortcut buttons for common tasks -->
         <div class="quick-actions">
             <a href="add-reservation.html" class="btn btn-primary">Add Reservation</a>
             <a href="view-reservation.html" class="btn btn-secondary">Search Reservation</a>
         </div>
 
-        <!-- Recent Reservations Table -->
+        <!-- Recent Reservations Table - shows the latest bookings -->
+        <!-- Hidden until data is loaded from the server -->
         <div class="card" id="recentCard" style="display: none;">
             <div class="card-header">Recent Reservations</div>
             <table>
+                <!-- Table header row with column names -->
                 <thead>
                     <tr>
                         <th>Reservation #</th>
@@ -74,39 +86,45 @@
                         <th>Status</th>
                     </tr>
                 </thead>
+                <!-- Table body - rows will be added dynamically by JavaScript -->
                 <tbody id="recentReservations"></tbody>
             </table>
         </div>
     </div>
 
+    <!-- Include the shared app.js which has the apiCall helper and other utilities -->
     <script src="js/app.js"></script>
     <script>
-        // Load dashboard data on page load
+        // When the page finishes loading, call loadDashboard to fetch data
         document.addEventListener('DOMContentLoaded', function() {
             loadDashboard();
         });
 
+        // This function fetches all the dashboard data from the server
         function loadDashboard() {
+            // Send a GET request to the DashboardServlet
             apiCall('/api/dashboard', 'GET')
                 .then(function(data) {
-                    // Update user info
+                    // Update the welcome message and nav bar with the user's name
                     document.getElementById('welcomeName').textContent = data.fullName || 'User';
                     document.getElementById('navUserName').textContent = data.fullName || '';
 
-                    // Update stats
+                    // Fill in each stat card with the numbers from the server
                     document.getElementById('todayReservations').textContent = data.todayReservations || 0;
                     document.getElementById('totalRooms').textContent = data.totalRooms || 0;
                     document.getElementById('availableRooms').textContent = data.availableRooms || 0;
                     document.getElementById('totalReservations').textContent = data.totalReservations || 0;
 
-                    // Show stats grid
+                    // Data is ready, so show the stats grid and hide the spinner
                     document.getElementById('statsGrid').style.display = '';
                     document.getElementById('loading').classList.remove('active');
 
-                    // Populate recent reservations
+                    // Populate the recent reservations table
                     var tbody = document.getElementById('recentReservations');
                     tbody.innerHTML = '';
+                    // Only build the table if there are reservations to show
                     if (data.recentReservations && data.recentReservations.length > 0) {
+                        // Loop through each reservation and add a table row
                         data.recentReservations.forEach(function(r) {
                             var row = document.createElement('tr');
                             row.innerHTML =
@@ -118,10 +136,12 @@
                                 '<td><span class="badge badge-' + r.status.toLowerCase().replace('_','-') + '">' + r.status + '</span></td>';
                             tbody.appendChild(row);
                         });
+                        // Show the recent reservations card now that we have data
                         document.getElementById('recentCard').style.display = '';
                     }
                 })
                 .catch(function(err) {
+                    // If something goes wrong, hide the spinner and log the error
                     document.getElementById('loading').classList.remove('active');
                     console.error('Dashboard load error:', err);
                 });

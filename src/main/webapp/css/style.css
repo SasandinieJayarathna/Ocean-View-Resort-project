@@ -1,57 +1,81 @@
 /* ============================================================
    Ocean View Resort — Main Stylesheet
-   Theme: Ocean blues, clean professional look
+
+   This CSS file controls the look and feel of the entire system.
+   I used an ocean blue colour theme to match the resort branding.
+
+   Colours used:
+   - Primary blue:    #0077b6  (main buttons, navbar, headings)
+   - Secondary blue:  #00b4d8  (hover effects, accents)
+   - Light blue:      #caf0f8  (backgrounds, highlights)
+   - Dark blue:       #023e8a  (dark text, footer)
+   - White:           #ffffff  (card backgrounds)
+   - Gray:            #f8f9fa  (page background)
+
+   Author: Sasandinie Jayarathna
+   Module: CIS6003 Advanced Programming
    ============================================================ */
 
-/* --- CSS Variables --- */
+/* ---- CSS Variables ----
+   These are like "global constants" for colours.
+   I define them once here and reuse them throughout the file
+   using var(--name). This makes it easy to change colours later. */
 :root {
-    --primary: #0077b6;
-    --secondary: #00b4d8;
-    --light: #caf0f8;
-    --dark: #023e8a;
+    --primary: #0077b6;       /* Main ocean blue colour */
+    --secondary: #00b4d8;     /* Lighter blue for accents */
+    --light: #caf0f8;         /* Very light blue for backgrounds */
+    --dark: #023e8a;          /* Dark blue for headings */
     --white: #ffffff;
-    --gray: #f8f9fa;
-    --text: #333333;
-    --danger: #e63946;
-    --success: #2a9d8f;
-    --warning: #e9c46a;
-    --border: #dee2e6;
-    --shadow: rgba(0, 0, 0, 0.1);
+    --gray: #f8f9fa;          /* Light gray page background */
+    --text: #333333;          /* Default text colour */
+    --danger: #e63946;        /* Red - for delete buttons and errors */
+    --success: #2a9d8f;       /* Green - for success messages */
+    --warning: #e9c46a;       /* Yellow - for warnings */
+    --border: #dee2e6;        /* Light gray for borders */
+    --shadow: rgba(0, 0, 0, 0.1);  /* Subtle shadow effect */
 }
 
-/* --- Universal Reset --- */
+/* ---- Universal Reset ----
+   This removes the default margin and padding from ALL elements.
+   box-sizing: border-box makes width calculations easier. */
 *, *::before, *::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* --- Body --- */
+/* ---- Body ----
+   Base styles for the whole page. */
 body {
     font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     background-color: var(--gray);
     color: var(--text);
-    line-height: 1.6;
-    min-height: 100vh;
+    line-height: 1.6;      /* Space between lines of text */
+    min-height: 100vh;     /* vh = viewport height, so page is at least full screen */
 }
 
-/* --- Navigation Bar --- */
+/* ============================================================
+   NAVIGATION BAR
+   The blue bar at the top of every page (except login).
+   It's fixed so it stays visible when the user scrolls down.
+   ============================================================ */
 .navbar {
-    position: fixed;
+    position: fixed;        /* Stays at the top when scrolling */
     top: 0;
     left: 0;
     right: 0;
     background: var(--primary);
     color: var(--white);
-    display: flex;
+    display: flex;          /* Flexbox makes it easy to align items horizontally */
     align-items: center;
-    justify-content: space-between;
+    justify-content: space-between;  /* Logo on left, links in middle, user on right */
     padding: 0 2rem;
     height: 60px;
-    z-index: 1000;
+    z-index: 1000;         /* Makes sure navbar is always on top of other content */
     box-shadow: 0 2px 8px var(--shadow);
 }
 
+/* Hotel name/logo in the navbar */
 .navbar .logo {
     font-size: 1.3rem;
     font-weight: 700;
@@ -60,28 +84,32 @@ body {
     letter-spacing: 0.5px;
 }
 
+/* Navigation links container */
 .navbar .nav-links {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
-    list-style: none;
+    gap: 1.5rem;            /* Space between each link */
+    list-style: none;       /* Remove bullet points */
 }
 
+/* Individual navigation links */
 .navbar .nav-links a {
     color: var(--light);
     text-decoration: none;
     font-size: 0.9rem;
     padding: 0.4rem 0.8rem;
     border-radius: 4px;
-    transition: background 0.2s, color 0.2s;
+    transition: background 0.2s, color 0.2s;  /* Smooth hover effect */
 }
 
+/* Hover and active state for nav links */
 .navbar .nav-links a:hover,
 .navbar .nav-links a.active {
     background: rgba(255, 255, 255, 0.15);
     color: var(--white);
 }
 
+/* User info section on the right side of navbar */
 .navbar .user-info {
     display: flex;
     align-items: center;
@@ -91,6 +119,7 @@ body {
 
 .navbar .user-info span { color: var(--light); }
 
+/* Logout button in navbar */
 .navbar .user-info a {
     color: var(--light);
     text-decoration: none;
@@ -102,23 +131,32 @@ body {
 
 .navbar .user-info a:hover { background: rgba(255, 255, 255, 0.15); }
 
-/* --- Main Content Area --- */
+/* ============================================================
+   MAIN CONTENT AREA
+   This is the area below the navbar where page content goes.
+   margin-top: 80px creates space so content doesn't hide behind
+   the fixed navbar.
+   ============================================================ */
 .main-content {
     margin-top: 80px;
     padding: 1.5rem 2rem;
-    max-width: 1200px;
+    max-width: 1200px;      /* Prevents content from being too wide on big screens */
     margin-left: auto;
-    margin-right: auto;
+    margin-right: auto;     /* auto left+right margins center the content */
 }
 
-/* --- Container --- */
+/* Generic container for centering content */
 .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 1rem;
 }
 
-/* --- Card --- */
+/* ============================================================
+   CARD COMPONENT
+   Cards are white boxes with rounded corners and a shadow.
+   I use them throughout the system to group related content.
+   ============================================================ */
 .card {
     background: var(--white);
     border-radius: 8px;
@@ -127,6 +165,7 @@ body {
     margin-bottom: 1.5rem;
 }
 
+/* Card title/header with a blue underline */
 .card-header {
     font-size: 1.1rem;
     font-weight: 600;
@@ -136,11 +175,18 @@ body {
     border-bottom: 2px solid var(--light);
 }
 
-/* --- Form Styling --- */
+/* ============================================================
+   FORM STYLES
+   These styles are used for all input forms in the system
+   (add reservation, billing, reports, etc.)
+   ============================================================ */
+
+/* Each form field is wrapped in a form-group div */
 .form-group {
     margin-bottom: 1rem;
 }
 
+/* Labels above input fields */
 .form-group label {
     display: block;
     margin-bottom: 0.4rem;
@@ -149,6 +195,7 @@ body {
     font-size: 0.9rem;
 }
 
+/* Text inputs, dropdowns, and textareas */
 .form-group input,
 .form-group select,
 .form-group textarea {
@@ -162,6 +209,7 @@ body {
     background: var(--white);
 }
 
+/* Blue glow effect when an input is focused (clicked on) */
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
@@ -170,15 +218,24 @@ body {
     box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.15);
 }
 
+/* Textarea specific styles */
 .form-group textarea { resize: vertical; min-height: 80px; }
 
+/* Two-column form row using CSS Grid */
 .form-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr;  /* Two equal-width columns */
     gap: 1rem;
 }
 
-/* --- Buttons --- */
+/* ============================================================
+   BUTTONS
+   Different button styles for different actions:
+   - Primary (blue) = main actions like "Save", "Login"
+   - Danger (red) = delete/cancel actions
+   - Success (green) = confirm actions
+   - Outline = secondary actions
+   ============================================================ */
 .btn {
     display: inline-block;
     padding: 0.6rem 1.5rem;
@@ -192,21 +249,27 @@ body {
     text-align: center;
 }
 
+/* Slight lift effect on hover */
 .btn:hover { transform: translateY(-1px); }
 .btn:active { transform: translateY(0); }
 
+/* Blue button - for primary actions */
 .btn-primary { background: var(--primary); color: var(--white); }
 .btn-primary:hover { background: var(--dark); }
 
+/* Light blue button */
 .btn-secondary { background: var(--secondary); color: var(--white); }
 .btn-secondary:hover { background: var(--primary); }
 
+/* Red button - for delete/cancel */
 .btn-danger { background: var(--danger); color: var(--white); }
 .btn-danger:hover { background: #c1121f; }
 
+/* Green button - for success/confirm */
 .btn-success { background: var(--success); color: var(--white); }
 .btn-success:hover { background: #21867a; }
 
+/* Outline button - just a border, no fill */
 .btn-outline {
     background: transparent;
     color: var(--primary);
@@ -215,16 +278,23 @@ body {
 
 .btn-outline:hover { background: var(--primary); color: var(--white); }
 
+/* Full-width button (used on login page) */
 .btn-full { width: 100%; }
+
+/* Small button (used in table rows) */
 .btn-sm { padding: 0.35rem 0.8rem; font-size: 0.85rem; }
 
-/* --- Table Styling --- */
+/* ============================================================
+   TABLE STYLES
+   Used for displaying reservations, reports, and other data.
+   ============================================================ */
 table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: collapse;  /* Remove gaps between cells */
     font-size: 0.9rem;
 }
 
+/* Table header - blue background */
 table thead th {
     background: var(--primary);
     color: var(--white);
@@ -233,34 +303,45 @@ table thead th {
     font-weight: 500;
 }
 
+/* Table rows - with bottom border */
 table tbody tr {
     border-bottom: 1px solid var(--border);
     transition: background 0.15s;
 }
 
+/* Alternating row colours (zebra striping) for readability */
 table tbody tr:nth-child(even) { background: var(--gray); }
+
+/* Highlight row on mouse hover */
 table tbody tr:hover { background: var(--light); }
 
+/* Table cells */
 table tbody td {
     padding: 0.65rem 1rem;
     vertical-align: middle;
 }
 
-/* --- Login Page --- */
+/* ============================================================
+   LOGIN PAGE STYLES
+   The login page has a gradient blue background.
+   The login form sits in a white card in the center.
+   ============================================================ */
 .login-page {
     background: linear-gradient(135deg, var(--primary), var(--dark));
     display: flex;
-    align-items: center;
-    justify-content: center;
+    align-items: center;       /* Center vertically */
+    justify-content: center;   /* Center horizontally */
     min-height: 100vh;
 }
 
+/* Container that holds the login card */
 .login-container {
     width: 100%;
     max-width: 420px;
     padding: 1rem;
 }
 
+/* The white login card */
 .login-card {
     background: var(--white);
     border-radius: 12px;
@@ -268,6 +349,7 @@ table tbody td {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
+/* Login page header (hotel name) */
 .login-header {
     text-align: center;
     margin-bottom: 2rem;
@@ -279,13 +361,16 @@ table tbody td {
     margin-bottom: 0.3rem;
 }
 
+/* "Galle, Sri Lanka" tagline */
 .login-header .tagline {
     color: #666;
     font-size: 0.95rem;
 }
 
+/* Extra spacing for login form fields */
 .login-form .form-group { margin-bottom: 1.2rem; }
 
+/* Small footer text on login page */
 .login-footer {
     text-align: center;
     margin-top: 1.5rem;
@@ -293,36 +378,48 @@ table tbody td {
     color: #999;
 }
 
-/* --- Dashboard Stats Grid --- */
+/* ============================================================
+   DASHBOARD - STATISTICS GRID
+   Shows key numbers (today's reservations, total rooms, etc.)
+   in a responsive grid of cards.
+   ============================================================ */
 .stats-grid {
     display: grid;
+    /* auto-fit with minmax makes it responsive - cards wrap to next line on small screens */
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 1.2rem;
     margin-bottom: 1.5rem;
 }
 
+/* Individual stat card */
 .stat-card {
     background: var(--white);
     border-radius: 8px;
     padding: 1.5rem;
     box-shadow: 0 2px 8px var(--shadow);
     text-align: center;
-    border-top: 4px solid var(--primary);
+    border-top: 4px solid var(--primary);  /* Blue line at the top */
 }
 
+/* Big number in the stat card */
 .stat-card .stat-value {
     font-size: 2rem;
     font-weight: 700;
     color: var(--primary);
 }
 
+/* Label below the number */
 .stat-card .stat-label {
     color: #666;
     font-size: 0.85rem;
     margin-top: 0.3rem;
 }
 
-/* --- Alert Styles --- */
+/* ============================================================
+   ALERT MESSAGES
+   Used to show success, error, warning, and info messages.
+   These appear at the top of pages after user actions.
+   ============================================================ */
 .alert {
     padding: 0.75rem 1rem;
     border-radius: 6px;
@@ -330,14 +427,27 @@ table tbody td {
     font-size: 0.9rem;
 }
 
+/* Green alert for success messages */
 .alert-success { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+
+/* Red alert for error messages */
 .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+/* Yellow alert for warnings */
 .alert-warning { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+
+/* Blue alert for info messages */
 .alert-info { background: var(--light); color: var(--dark); border: 1px solid var(--secondary); }
 
-/* --- Modal / Overlay --- */
+/* ============================================================
+   MODAL / POPUP OVERLAY
+   Used for confirmation dialogs (e.g., "Are you sure you want
+   to cancel this reservation?")
+   ============================================================ */
+
+/* Dark semi-transparent background behind the popup */
 .modal-overlay {
-    display: none;
+    display: none;             /* Hidden by default */
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0, 0, 0, 0.5);
@@ -346,8 +456,10 @@ table tbody td {
     justify-content: center;
 }
 
+/* Show the modal when .active class is added via JavaScript */
 .modal-overlay.active { display: flex; }
 
+/* The actual popup box */
 .modal {
     background: var(--white);
     border-radius: 12px;
@@ -357,6 +469,7 @@ table tbody td {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
+/* Modal title */
 .modal-header {
     font-size: 1.2rem;
     font-weight: 600;
@@ -364,6 +477,7 @@ table tbody td {
     color: var(--dark);
 }
 
+/* Buttons at the bottom of the modal */
 .modal-actions {
     display: flex;
     gap: 0.75rem;
@@ -371,7 +485,11 @@ table tbody td {
     margin-top: 1.5rem;
 }
 
-/* --- Status Badges --- */
+/* ============================================================
+   STATUS BADGES
+   Small coloured labels that show reservation status
+   (CONFIRMED, CHECKED_IN, CHECKED_OUT, CANCELLED)
+   ============================================================ */
 .badge {
     display: inline-block;
     padding: 0.2rem 0.6rem;
@@ -381,40 +499,54 @@ table tbody td {
     text-transform: uppercase;
 }
 
+/* Different colours for each status */
 .badge-confirmed { background: #dbeafe; color: #1e40af; }
 .badge-checked-in { background: #d1fae5; color: #065f46; }
 .badge-checked-out { background: #e5e7eb; color: #374151; }
 .badge-cancelled { background: #fee2e2; color: #991b1b; }
 
-/* --- Loading Spinner --- */
+/* ============================================================
+   LOADING SPINNER
+   Shows a spinning circle while data is being loaded from
+   the server. Hidden by default, shown via JavaScript.
+   ============================================================ */
 .loading {
     display: none;
     text-align: center;
     padding: 2rem;
 }
 
+/* Show spinner when .active class is added */
 .loading.active { display: block; }
 
+/* The spinning circle - uses CSS animation */
 .spinner {
     width: 40px;
     height: 40px;
     border: 4px solid var(--light);
-    border-top-color: var(--primary);
+    border-top-color: var(--primary);  /* Only top border is blue */
     border-radius: 50%;
-    animation: spin 0.8s linear infinite;
+    animation: spin 0.8s linear infinite;  /* Spin forever */
     margin: 0 auto 1rem;
 }
 
+/* Spin animation - rotates from 0 to 360 degrees */
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* --- Quick Actions --- */
+/* ============================================================
+   QUICK ACTIONS
+   Buttons on the dashboard for common tasks.
+   ============================================================ */
 .quick-actions {
     display: flex;
     gap: 1rem;
     margin-bottom: 1.5rem;
 }
 
-/* --- Search Bar --- */
+/* ============================================================
+   SEARCH BAR
+   Used on the View Reservations page to search for bookings.
+   ============================================================ */
 .search-bar {
     display: flex;
     gap: 0.75rem;
@@ -422,7 +554,7 @@ table tbody td {
 }
 
 .search-bar input {
-    flex: 1;
+    flex: 1;               /* Take up remaining space */
     padding: 0.6rem 1rem;
     border: 1px solid var(--border);
     border-radius: 6px;
@@ -435,19 +567,29 @@ table tbody td {
     box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.15);
 }
 
-/* --- Invoice / Bill Layout --- */
+/* ============================================================
+   INVOICE / BILL LAYOUT
+   Styles for the generated bill/invoice on the Billing page.
+   ============================================================ */
 .invoice {
     background: var(--white);
     border: 1px solid var(--border);
     border-radius: 8px;
     padding: 2rem;
     max-width: 700px;
-    margin: 0 auto;
+    margin: 0 auto;        /* Center the invoice on the page */
 }
 
-.invoice-header { text-align: center; margin-bottom: 1.5rem; border-bottom: 2px solid var(--primary); padding-bottom: 1rem; }
+/* Invoice header with hotel name */
+.invoice-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 1rem;
+}
 .invoice-header h2 { color: var(--primary); }
 
+/* Invoice details grid (reservation info) */
 .invoice-details {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -458,11 +600,24 @@ table tbody td {
 .invoice-details dt { font-weight: 600; color: #555; }
 .invoice-details dd { color: var(--text); }
 
-.invoice-total { font-size: 1.3rem; font-weight: 700; color: var(--primary); text-align: right; margin-top: 1rem; padding-top: 0.75rem; border-top: 2px solid var(--primary); }
+/* Total amount at the bottom of the invoice */
+.invoice-total {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--primary);
+    text-align: right;
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 2px solid var(--primary);
+}
 
-/* --- Help / Accordion --- */
+/* ============================================================
+   HELP PAGE - ACCORDION SECTIONS
+   Each help topic can be expanded/collapsed by clicking on it.
+   ============================================================ */
 .help-section { margin-bottom: 0.75rem; }
 
+/* Clickable help topic title */
 .help-section .help-title {
     background: var(--light);
     padding: 0.75rem 1rem;
@@ -478,17 +633,23 @@ table tbody td {
 
 .help-section .help-title:hover { background: #b8e6f5; }
 
+/* Help content - hidden by default */
 .help-section .help-content {
     display: none;
     padding: 1rem;
     line-height: 1.8;
-    white-space: pre-line;
+    white-space: pre-line;  /* Preserves line breaks from the text */
     color: #555;
 }
 
+/* Show content when section is active */
 .help-section.active .help-content { display: block; }
 
-/* --- Room Cards --- */
+/* ============================================================
+   ROOM SELECTION CARDS
+   Used on the Add Reservation page to show available rooms.
+   User clicks a room card to select it.
+   ============================================================ */
 .room-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -496,29 +657,39 @@ table tbody td {
     margin-top: 1rem;
 }
 
+/* Individual room card */
 .room-card {
     border: 2px solid var(--border);
     border-radius: 8px;
     padding: 1rem;
-    cursor: pointer;
+    cursor: pointer;        /* Shows hand cursor to indicate it's clickable */
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
+/* Hover effect on room cards */
 .room-card:hover { border-color: var(--secondary); box-shadow: 0 2px 8px var(--shadow); }
+
+/* Selected room card - highlighted in blue */
 .room-card.selected { border-color: var(--primary); background: var(--light); }
 
+/* Room card content */
 .room-card .room-number { font-weight: 700; font-size: 1.1rem; color: var(--dark); }
 .room-card .room-price { color: var(--primary); font-weight: 600; margin-top: 0.3rem; }
 .room-card .room-desc { font-size: 0.85rem; color: #666; margin-top: 0.3rem; }
 
-/* --- Detail Panel --- */
+/* ============================================================
+   DETAIL PANEL
+   Shows full details of a reservation when clicked.
+   ============================================================ */
 .detail-panel {
     display: none;
     margin-top: 1.5rem;
 }
 
+/* Show when active */
 .detail-panel.active { display: block; }
 
+/* Two-column grid for detail labels and values */
 .detail-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -528,7 +699,10 @@ table tbody td {
 .detail-grid .detail-label { font-weight: 600; color: #555; font-size: 0.9rem; }
 .detail-grid .detail-value { color: var(--text); }
 
-/* --- Page Title --- */
+/* ============================================================
+   PAGE TITLE
+   The big heading at the top of each page.
+   ============================================================ */
 .page-title {
     font-size: 1.4rem;
     font-weight: 600;
@@ -536,7 +710,10 @@ table tbody td {
     margin-bottom: 1.5rem;
 }
 
-/* --- Empty State --- */
+/* ============================================================
+   EMPTY STATE
+   Shown when there's no data to display (e.g., no search results).
+   ============================================================ */
 .empty-state {
     text-align: center;
     padding: 3rem 1rem;
@@ -545,8 +722,13 @@ table tbody td {
 
 .empty-state p { font-size: 1rem; }
 
-/* --- Responsive Design --- */
+/* ============================================================
+   RESPONSIVE DESIGN
+   These styles apply when the screen is smaller than 768px
+   (tablets and mobile phones). This is called a "media query".
+   ============================================================ */
 @media (max-width: 768px) {
+    /* Stack navbar items vertically on small screens */
     .navbar {
         flex-direction: column;
         height: auto;
@@ -560,7 +742,10 @@ table tbody td {
         margin-top: 0.5rem;
     }
 
+    /* More space for content below taller navbar */
     .main-content { margin-top: 120px; padding: 1rem; }
+
+    /* Switch to fewer columns on small screens */
     .stats-grid { grid-template-columns: 1fr 1fr; }
     .form-row { grid-template-columns: 1fr; }
     .invoice-details { grid-template-columns: 1fr; }
@@ -569,7 +754,11 @@ table tbody td {
     .quick-actions { flex-direction: column; }
 }
 
-/* --- Print Styles --- */
+/* ============================================================
+   PRINT STYLES
+   When the user clicks "Print" (e.g., for a bill), these styles
+   hide unnecessary elements like the navbar and buttons.
+   ============================================================ */
 @media print {
     .navbar, .search-bar, .quick-actions, .btn, .modal-overlay { display: none !important; }
     .main-content { margin-top: 0; }

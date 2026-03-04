@@ -102,9 +102,13 @@ mysql -u root -p < src/main/resources/db/schema.sql
 ```
 
 ### 3. Configure database credentials
-```bash
-cp src/main/resources/db.properties.template src/main/resources/db.properties
-# Edit db.properties with your MySQL password
+
+Create `src/main/resources/db.properties` with your MySQL credentials:
+```properties
+db.url=jdbc:mysql://localhost:3306/oceanview_resort?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+db.username=root
+db.password=YOUR_MYSQL_PASSWORD
+db.driver=com.mysql.cj.jdbc.Driver
 ```
 
 ### 4. Build the project
@@ -119,17 +123,26 @@ mvn jacoco:report  # Coverage at target/site/jacoco/index.html
 ```
 
 ### 6. Run the application
+
+**Option A — Maven embedded Tomcat:**
 ```bash
 mvn tomcat7:run
-# Open: http://localhost:8080/oceanview/
+# Open: http://localhost:8081/oceanview/ 
+```
+
+**Option B — XAMPP Tomcat (or standalone Tomcat):**
+```bash
+mvn clean package -DskipTests
+# Copy target/oceanview.war to <TOMCAT_HOME>/webapps/
+# Start Tomcat and open: http://localhost:8080/oceanview/
 ```
 
 ### 7. Default login credentials
 
 | Username | Password | Role |
 |----------|----------|------|
-| admin | password123 | ADMIN |
-| staff1 | password123 | STAFF |
+| admin | 123 | ADMIN |
+| staff1 | terry | STAFF |
 
 ---
 
@@ -180,6 +193,82 @@ This project follows [Semantic Versioning](https://semver.org/):
 ## GitHub Repository
 
 **URL:** `https://github.com/SasandinieJayarathna/Ocean-View-Resort-project`
+
+---
+
+## How to Demonstrate the Database During Viva
+
+During your viva examination, you may want to show the database structure and sample data:
+
+### Step 1: Access MySQL Database
+```bash
+# Open MySQL command line
+mysql -u root -p
+
+# Enter password: root
+
+# Select the database
+USE oceanview_resort;
+```
+
+### Step 2: Show Database Tables
+```sql
+-- List all tables
+SHOW TABLES;
+
+-- Output should show:
+-- users, rooms, reservations, bills, audit_log
+```
+
+### Step 3: Show Key Data
+
+**View Users Table:**
+```sql
+SELECT * FROM users;
+-- Shows: admin (password: 123) and staff1 (password: terry)
+```
+
+**View Rooms Table:**
+```sql
+SELECT * FROM rooms;
+-- Shows: 8 rooms (3 standard, 3 deluxe, 2 suites) with prices
+```
+
+**View Reservations (with guest details):**
+```sql
+SELECT reservation_number, guest_name, contact_number, room_type, check_in_date, check_out_date, status FROM reservations LIMIT 5;
+```
+
+**View Bills (with pricing calculations):**
+```sql
+SELECT b.bill_id, r.reservation_number, b.number_of_nights, b.room_rate, b.subtotal, b.discount_amount, b.tax_amount, b.total_amount, b.billing_strategy
+FROM bills b
+JOIN reservations r ON b.reservation_id = r.reservation_id;
+```
+
+### Step 4: Show Stored Procedures
+```sql
+-- List stored procedures
+SHOW PROCEDURE STATUS WHERE Db = 'oceanview_resort';
+
+-- Call the stored procedure to show available rooms
+CALL sp_get_available_rooms('2026-03-10', '2026-03-12', 'DELUXE');
+```
+
+### Step 5: Show Audit Log (Triggers)
+```sql
+-- This table is automatically populated by triggers when reservations change
+SELECT * FROM audit_log LIMIT 5;
+-- Shows: table_name, action_type (INSERT/UPDATE/DELETE), record_id, old_values, new_values, timestamp
+```
+
+### Key Points to Mention:
+
+1. **Password Security**: Passwords are stored as BCrypt hashes (e.g., `$2a$10$...`), never plain text
+2. **Data Integrity**: Foreign keys ensure reservations always link to valid rooms
+3. **Audit Trail**: Triggers automatically log all changes for compliance
+4. **Business Logic**: Stored procedures encapsulate complex queries (available rooms, reports)
+5. **Sample Data**: Default admin account created for testing
 
 ---
 

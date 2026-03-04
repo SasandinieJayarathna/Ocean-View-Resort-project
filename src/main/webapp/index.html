@@ -1,74 +1,161 @@
 <!DOCTYPE html>
 <html lang="en">
+<!--
+    Ocean View Resort - Login Page
+    This is the first page users see when they visit the system.
+    It shows a login form with an ocean-themed background image.
+    When the user submits the form, JavaScript sends the data to LoginServlet.
+-->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ocean View Resort - Login</title>
     <link rel="stylesheet" href="css/style.css">
+
+    <!-- Extra styles just for the login page (ocean background image) -->
+    <style>
+        /* Full-screen ocean background for the login page */
+        .login-page {
+            background:
+                linear-gradient(135deg, rgba(2, 62, 138, 0.7), rgba(0, 119, 182, 0.6)),
+                url('images/ocean-resort.svg') center center / cover no-repeat;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* The white login box in the middle */
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Ocean wave decoration at the bottom of login card */
+        .ocean-decoration {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #0077b6;
+            font-size: 1.5rem;
+            letter-spacing: 4px;
+            opacity: 0.5;
+        }
+
+        /* Resort image above the login form */
+        .resort-image {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .resort-image img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid #0077b6;
+            object-fit: cover;
+        }
+    </style>
 </head>
 <body class="login-page">
-    <!-- Login Container -->
+
+    <!-- ====== LOGIN CONTAINER ====== -->
+    <!-- This is the centered white box where the user types their username and password -->
     <div class="login-container">
         <div class="login-card">
-            <!-- Hotel Branding -->
+
+            <!-- Resort logo/image at the top -->
+            <div class="resort-image">
+                <img src="images/ocean-resort.svg" alt="Ocean View Resort Logo">
+            </div>
+
+            <!-- Hotel name and location -->
             <div class="login-header">
                 <h1>Ocean View Resort</h1>
                 <p class="tagline">Galle, Sri Lanka</p>
             </div>
 
-            <!-- Login Form -->
+            <!-- ====== LOGIN FORM ====== -->
+            <!-- When submitted, JavaScript handles it (not a normal form submit) -->
             <form id="loginForm" class="login-form">
+                <!-- Username input field -->
                 <div class="form-group">
                     <label for="username">Username</label>
-                    <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                    <input type="text" id="username" name="username"
+                           placeholder="Enter your username" required>
                 </div>
+
+                <!-- Password input field -->
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                    <input type="password" id="password" name="password"
+                           placeholder="Enter your password" required>
                 </div>
 
-                <!-- Error message (hidden by default) -->
+                <!-- Error message box - hidden by default, shown when login fails -->
                 <div id="errorMessage" class="alert alert-error" style="display: none;"></div>
 
+                <!-- Login button - submits the form -->
                 <button type="submit" class="btn btn-primary btn-full">Login</button>
             </form>
 
+            <!-- Ocean wave decoration -->
+            <div class="ocean-decoration">~ ~ ~ ~ ~</div>
+
+            <!-- Footer text -->
             <div class="login-footer">
                 <p>Room Reservation Management System</p>
             </div>
         </div>
     </div>
 
-    <!-- Login Script -->
+    <!-- ====== LOGIN JAVASCRIPT ====== -->
+    <!-- This script handles the login form submission -->
     <script>
-        // Determine context path for servlet requests
-        const contextPath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) || '';
+        // Step 1: Figure out the base URL of our application
+        // This is needed so we can send requests to the correct servlet
+        var contextPath = window.location.pathname.substring(
+            0, window.location.pathname.lastIndexOf('/')
+        ) || '';
 
+        // Step 2: Listen for when the user clicks the Login button
         document.getElementById('loginForm').addEventListener('submit', function(e) {
+            // Prevent the form from doing a normal page reload
             e.preventDefault();
-            const errorDiv = document.getElementById('errorMessage');
+
+            // Hide any previous error messages
+            var errorDiv = document.getElementById('errorMessage');
             errorDiv.style.display = 'none';
 
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+            // Get the values the user typed in
+            var username = document.getElementById('username').value;
+            var password = document.getElementById('password').value;
 
-            // POST to login servlet
+            // Step 3: Send the username and password to the LoginServlet using fetch API
+            // fetch() is a modern way to make HTTP requests in JavaScript
             fetch(contextPath + '/login', {
-                method: 'POST',
+                method: 'POST',  // We use POST because we are sending sensitive data
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: 'username=' + encodeURIComponent(username) + '&password=' + encodeURIComponent(password)
+                body: 'username=' + encodeURIComponent(username) +
+                      '&password=' + encodeURIComponent(password)
             })
-            .then(function(response) { return response.json(); })
+            // Step 4: Convert the response from the server to JSON
+            .then(function(response) {
+                return response.json();
+            })
+            // Step 5: Check if login was successful or not
             .then(function(data) {
                 if (data.success) {
-                    // Redirect to dashboard on success
+                    // Login worked! Redirect to the dashboard page
                     window.location.href = 'dashboard.html';
                 } else {
-                    // Show error message
+                    // Login failed - show the error message from the server
                     errorDiv.textContent = data.error || 'Login failed. Please try again.';
                     errorDiv.style.display = 'block';
                 }
             })
+            // Step 6: Handle any network errors (server down, no internet, etc.)
             .catch(function(err) {
                 errorDiv.textContent = 'Connection error. Please try again.';
                 errorDiv.style.display = 'block';

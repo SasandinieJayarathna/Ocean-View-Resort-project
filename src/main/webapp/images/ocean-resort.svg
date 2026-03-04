@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <!-- Sky gradient background -->
+  <defs>
+    <linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#87CEEB"/>
+      <stop offset="60%" style="stop-color:#00b4d8"/>
+      <stop offset="100%" style="stop-color:#0077b6"/>
+    </linearGradient>
+    <linearGradient id="sand" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#f4d35e"/>
+      <stop offset="100%" style="stop-color:#e9c46a"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Sky -->
+  <rect width="400" height="400" fill="url(#sky)"/>
+
+  <!-- Sun -->
+  <circle cx="320" cy="80" r="45" fill="#FFD700" opacity="0.9"/>
+  <circle cx="320" cy="80" r="55" fill="#FFD700" opacity="0.2"/>
+
+  <!-- Clouds -->
+  <ellipse cx="100" cy="60" rx="50" ry="20" fill="white" opacity="0.7"/>
+  <ellipse cx="130" cy="50" rx="40" ry="18" fill="white" opacity="0.6"/>
+  <ellipse cx="250" cy="40" rx="45" ry="16" fill="white" opacity="0.5"/>
+
+  <!-- Ocean waves -->
+  <path d="M0,250 Q50,235 100,250 Q150,265 200,250 Q250,235 300,250 Q350,265 400,250 L400,320 L0,320 Z" fill="#0077b6" opacity="0.6"/>
+  <path d="M0,265 Q50,250 100,265 Q150,280 200,265 Q250,250 300,265 Q350,280 400,265 L400,320 L0,320 Z" fill="#023e8a" opacity="0.5"/>
+  <path d="M0,280 Q50,268 100,280 Q150,292 200,280 Q250,268 300,280 Q350,292 400,280 L400,320 L0,320 Z" fill="#0077b6" opacity="0.7"/>
+
+  <!-- Beach / Sand -->
+  <path d="M0,310 Q100,300 200,310 Q300,320 400,310 L400,400 L0,400 Z" fill="url(#sand)"/>
+
+  <!-- Palm tree trunk -->
+  <path d="M80,310 Q85,240 75,170" stroke="#8B4513" stroke-width="8" fill="none" stroke-linecap="round"/>
+
+  <!-- Palm tree leaves -->
+  <path d="M75,170 Q40,150 20,180" stroke="#2d6a4f" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M75,170 Q50,140 30,155" stroke="#40916c" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M75,170 Q100,140 130,155" stroke="#2d6a4f" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M75,170 Q110,150 135,180" stroke="#40916c" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M75,170 Q75,135 80,120" stroke="#52b788" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+  <!-- Hotel building -->
+  <rect x="180" y="180" width="160" height="130" fill="#ffffff" rx="4"/>
+  <rect x="180" y="175" width="160" height="15" fill="#0077b6" rx="4"/>
+
+  <!-- Hotel windows (3 rows x 4 cols) -->
+  <rect x="195" y="200" width="25" height="20" fill="#caf0f8" rx="2"/>
+  <rect x="230" y="200" width="25" height="20" fill="#caf0f8" rx="2"/>
+  <rect x="265" y="200" width="25" height="20" fill="#caf0f8" rx="2"/>
+  <rect x="300" y="200" width="25" height="20" fill="#caf0f8" rx="2"/>
+
+  <rect x="195" y="230" width="25" height="20" fill="#caf0f8" rx="2"/>
+  <rect x="230" y="230" width="25" height="20" fill="#caf0f8" rx="2"/>
+  <rect x="265" y="230" width="25" height="20" fill="#caf0f8" rx="2"/>
+  <rect x="300" y="230" width="25" height="20" fill="#caf0f8" rx="2"/>
+
+  <rect x="195" y="260" width="25" height="20" fill="#caf0f8" rx="2"/>
+  <rect x="230" y="260" width="25" height="20" fill="#caf0f8" rx="2"/>
+  <rect x="265" y="260" width="25" height="20" fill="#caf0f8" rx="2"/>
+  <rect x="300" y="260" width="25" height="20" fill="#caf0f8" rx="2"/>
+
+  <!-- Hotel door -->
+  <rect x="245" y="285" width="30" height="25" fill="#023e8a" rx="3"/>
+
+  <!-- Hotel sign -->
+  <text x="260" y="168" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="white" font-weight="bold">OCEAN VIEW</text>
+
+  <!-- Small boat on water -->
+  <path d="M300,270 Q310,260 320,270 L315,270 Q310,265 305,270 Z" fill="#8B4513"/>
+  <line x1="310" y1="270" x2="310" y2="258" stroke="#8B4513" stroke-width="1.5"/>
+  <path d="M310,258 L320,265 L310,268 Z" fill="white" opacity="0.8"/>
+
+  <!-- Birds -->
+  <path d="M140,100 Q145,95 150,100" stroke="#333" stroke-width="1.5" fill="none"/>
+  <path d="M160,90 Q165,85 170,90" stroke="#333" stroke-width="1.5" fill="none"/>
+  <path d="M175,105 Q180,100 185,105" stroke="#333" stroke-width="1.2" fill="none"/>
+</svg>
