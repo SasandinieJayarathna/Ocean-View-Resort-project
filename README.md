@@ -8,13 +8,20 @@
 ## Features
 
 - **User Authentication** — Secure login with BCrypt password hashing and session management
+  - Ocean-themed login page with professional resort background image
+  - OVR Galle logo branding
 - **Room Reservation Management** — Create, view, search, and cancel reservations
 - **Automated Billing** — Generate invoices with multiple pricing strategies (Standard, Seasonal, Loyalty)
+  - Professional invoice headers with resort logo (OVR Galle)
+  - Contact information display (landline, WhatsApp)
+  - Detailed invoice footers with payment terms and resort information
+  - Print-optimized invoice layouts for easy printing
 - **Business Reports** — Occupancy and revenue reports with stored procedure backends
 - **Role-Based Access** — Staff and Admin roles with different privileges
 - **Audit Trail** — Automatic database triggers log all reservation changes
 - **Input Validation** — Both client-side and server-side validation
 - **Help System** — Built-in user guide for new staff members
+- **Professional Branding** — Ocean View Resort branding with OVR Galle logo and Galle location emphasis
 
 ---
 
@@ -143,6 +150,55 @@ mvn clean package -DskipTests
 |----------|----------|------|
 | admin | 123 | ADMIN |
 | staff1 | terry | STAFF |
+
+---
+
+## User Interface & Branding
+
+### Visual Design
+- **Color Scheme:** Ocean-blue theme (#0077B6, #00B4D8) reflecting the resort's coastal location
+- **Typography:** System fonts for cross-platform compatibility
+- **Responsive Design:** Works on desktop, tablet, and mobile devices
+- **Accessibility:** Semantic HTML5, ARIA labels, and keyboard navigation support
+
+### Key UI Components
+
+#### 1. **Login Page (index.html)**
+- Full-screen ocean background image (Ocean resort.webp)
+- Professional login card with glassmorphism effect
+- OVR Galle logo branding
+- Responsive form validation with error handling
+
+#### 2. **Billing Invoice**
+- **Header Section:**
+  - OVR Galle logo (80x80px)
+  - Resort name and Galle location
+  - Contact information (landline: +94-91-222-3333, WhatsApp: +94-76-900-1234)
+- **Body Section:**
+  - Professional reservation details grid
+  - Itemized billing table with calculations
+  - Multiple billing strategy support (Standard, Seasonal, Loyalty)
+- **Footer Section:**
+  - Contact information section
+  - Payment terms (30-day credit terms)
+  - Resort copyright and legal notice
+  - Print-friendly layout optimization
+
+#### 3. **Dashboard & Navigation**
+- Fixed navigation bar with ocean-themed styling
+- Consistent color palette across all pages
+- Role-based menu items for Staff and Admin users
+
+### Assets
+- **Logo:** `/images/ovr-logo.svg` — Professional OVR Galle branding logo
+- **Background:** `/images/Ocean resort.webp` — High-resolution resort image (245KB)
+- **Icons:** Embedded in CSS (no external icon library)
+
+### Print Optimization
+- Invoice printing with proper page breaks and margins
+- Hide navigation and buttons in print view
+- Black-on-white contrast for clear printed documents
+- Professional invoice formatting suitable for guest records
 
 ---
 

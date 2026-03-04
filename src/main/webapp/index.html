@@ -3,8 +3,15 @@
 <!--
     Ocean View Resort - Login Page
     This is the first page users see when they visit the system.
-    It shows a login form with an ocean-themed background image.
+    It shows a login form with an ocean-themed background image (Ocean resort.webp).
+    Features:
+    - Professional resort background image for visual appeal
+    - OVR Galle logo branding
+    - Responsive login form with client-side validation
+    - Glassmorphism effect on login card for modern design
     When the user submits the form, JavaScript sends the data to LoginServlet.
+
+    Updated: Added Ocean resort.webp background image and OVR Galle logo for branding (v2.0.1)
 -->
 <head>
     <meta charset="UTF-8">
@@ -14,11 +21,12 @@
 
     <!-- Extra styles just for the login page (ocean background image) -->
     <style>
-        /* Full-screen ocean background for the login page */
+        /* Full-screen ocean background for the login page with Ocean resort image */
         .login-page {
             background:
-                linear-gradient(135deg, rgba(2, 62, 138, 0.7), rgba(0, 119, 182, 0.6)),
-                url('images/ocean-resort.svg') center center / cover no-repeat;
+                linear-gradient(135deg, rgba(2, 62, 138, 0.5), rgba(0, 119, 182, 0.4)),
+                url('../images/Ocean\ resort.webp') center center / cover no-repeat;
+            background-attachment: fixed;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -67,7 +75,7 @@
 
             <!-- Resort logo/image at the top -->
             <div class="resort-image">
-                <img src="images/ocean-resort.svg" alt="Ocean View Resort Logo">
+                <img src="images/ovr-logo.svg" alt="Ocean View Resort - OVR Galle Logo">
             </div>
 
             <!-- Hotel name and location -->

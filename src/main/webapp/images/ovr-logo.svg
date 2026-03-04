@@ -1,0 +1,38 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle with gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0077b6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00b4d8;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e0f4ff;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Outer circle background -->
+  <circle cx="100" cy="100" r="95" fill="url(#bgGradient)" stroke="#0055a4" stroke-width="2"/>
+
+  <!-- Wave decoration at bottom -->
+  <path d="M 30 120 Q 50 110, 70 120 T 110 120 T 150 120 T 170 120"
+        stroke="#ffffff" stroke-width="2" fill="none" opacity="0.6"/>
+
+  <!-- OVR Text (main) -->
+  <text x="100" y="85" font-family="Arial, sans-serif" font-size="48" font-weight="bold"
+        text-anchor="middle" fill="url(#textGradient)" letter-spacing="2">
+    OVR
+  </text>
+
+  <!-- Galle Text (subtitle) -->
+  <text x="100" y="130" font-family="Georgia, serif" font-size="16" font-style="italic"
+        text-anchor="middle" fill="#ffffff" letter-spacing="3">
+    GALLE
+  </text>
+
+  <!-- Small decorative elements - water droplets -->
+  <circle cx="40" cy="50" r="3" fill="#ffffff" opacity="0.8"/>
+  <circle cx="160" cy="60" r="2.5" fill="#ffffff" opacity="0.6"/>
+  <circle cx="45" cy="140" r="2" fill="#ffffff" opacity="0.5"/>
+  <circle cx="155" cy="150" r="2.5" fill="#ffffff" opacity="0.6"/>
+</svg>

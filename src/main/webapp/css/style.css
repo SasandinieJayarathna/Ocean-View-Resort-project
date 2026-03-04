@@ -570,6 +570,24 @@ table tbody td {
 /* ============================================================
    INVOICE / BILL LAYOUT
    Styles for the generated bill/invoice on the Billing page.
+
+   Features:
+   - Professional invoice header with OVR Galle logo (80x80px)
+   - Resort information (name, location, contact details)
+   - Detailed billing table with proper calculations
+   - Invoice footer with contact info and payment terms
+   - Print-friendly styles for clear, professional printed invoices
+   - Responsive table layout for different screen sizes
+
+   Invoice Sections:
+   1. .invoice-header: Logo, resort details, contact information
+   2. .invoice-details: Reservation and guest information grid
+   3. .invoice table: Itemized charges, discounts, taxes
+   4. .invoice-total: Total amount due
+   5. Invoice footer: Contact info, payment terms, copyright
+
+   Updated: Added professional invoice styling with logo display,
+           contact information, and print optimization (v2.0.1)
    ============================================================ */
 .invoice {
     background: var(--white);
@@ -599,6 +617,36 @@ table tbody td {
 
 .invoice-details dt { font-weight: 600; color: #555; }
 .invoice-details dd { color: var(--text); }
+
+/* Invoice table styling for better readability */
+.invoice table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.95rem;
+}
+
+.invoice table thead {
+    background-color: var(--light);
+    border-bottom: 2px solid var(--primary);
+}
+
+.invoice table th {
+    padding: 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.invoice table td {
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.invoice table tbody tr:last-child td {
+    border-bottom: 2px solid var(--primary);
+    font-weight: 600;
+}
 
 /* Total amount at the bottom of the invoice */
 .invoice-total {
@@ -760,9 +808,39 @@ table tbody td {
    hide unnecessary elements like the navbar and buttons.
    ============================================================ */
 @media print {
+    /* Hide navigation and interactive elements when printing */
     .navbar, .search-bar, .quick-actions, .btn, .modal-overlay { display: none !important; }
-    .main-content { margin-top: 0; }
-    body { background: white; }
-    .card { box-shadow: none; border: 1px solid #ddd; }
+
+    /* Print layout adjustments */
+    .main-content { margin-top: 0; padding: 0; }
+    body { background: white; color: black; }
+    .card { box-shadow: none; border: 1px solid #ddd; page-break-inside: avoid; }
     .stat-card { border-top: 2px solid #333; }
+
+    /* Invoice printing styles */
+    .invoice {
+        box-shadow: none;
+        border: 1px solid #000;
+        page-break-inside: avoid;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .invoice-header {
+        page-break-after: avoid;
+        border-bottom: 2px solid #000;
+    }
+    .invoice table {
+        page-break-inside: avoid;
+        border-collapse: collapse;
+    }
+    .invoice-total {
+        page-break-before: avoid;
+        border-top: 2px solid #000;
+        padding-top: 1rem;
+    }
+
+    /* Ensure proper spacing for footer on printed page */
+    @page {
+        margin: 0.5in;
+    }
 }
