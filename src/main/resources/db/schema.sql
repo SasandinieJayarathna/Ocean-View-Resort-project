@@ -204,16 +204,16 @@ INSERT INTO users (username, password_hash, full_name, email, role) VALUES
 ('admin', '$2a$10$95U9YTNkHjTTjyNFW2epZOaG87vizKlKzDVVPONfp7SvA1MnUJfjC', 'System Administrator', 'admin@oceanview.lk', 'ADMIN'),
 ('staff1', '$2a$10$ZsDbWJXzUYi5iQ8iSZ7b0ee0NeGMb4Y.GwXAuhv2U.B2VdIyOwURK', 'Reception Staff', 'staff@oceanview.lk', 'STAFF');
 
--- 8 rooms: 3 standard, 3 deluxe, 2 suites
--- Standard rooms (101-103): LKR 5,000 - 5,500 per night, max 2 guests
--- Deluxe rooms (201-203): LKR 10,000 - 12,000 per night, max 3 guests
--- Suites (301-302): LKR 18,000 - 20,000 per night, max 4 guests
+-- 8 rooms: 3 standard, 3 deluxe, 2 suites (realistic Sri Lankan resort pricing in LKR)
+-- Standard rooms : LKR  8,500 - 11,000 per night, max 2 guests
+-- Deluxe rooms   : LKR 15,000 - 20,000 per night, max 3 guests
+-- Suites         : LKR 35,000 - 55,000 per night, max 3-4 guests
 INSERT INTO rooms (room_number, room_type, price_per_night, description, max_occupancy) VALUES
-('101','STANDARD',5000.00,'Standard room with garden view',2),
-('102','STANDARD',5000.00,'Standard room with garden view',2),
-('103','STANDARD',5500.00,'Standard room with partial ocean view',2),
-('201','DELUXE',10000.00,'Deluxe room with full ocean view and balcony',3),
-('202','DELUXE',10000.00,'Deluxe room with full ocean view and balcony',3),
-('203','DELUXE',12000.00,'Deluxe room with private terrace and jacuzzi',3),
-('301','SUITE',20000.00,'Presidential suite with living area and ocean panorama',4),
-('302','SUITE',18000.00,'Executive suite with office space and ocean view',4);
+('STD-TW', 'STANDARD',  8500.00, 'Standard Room with Twin Beds',          2),
+('STD-DBL','STANDARD',  8500.00, 'Standard Room with Double Bed',          2),
+('STD-BAL','STANDARD', 11000.00, 'Standard Room with Balcony',             2),
+('DLX-OV', 'DELUXE',  15000.00, 'Deluxe Ocean View Room',                 3),
+('DLX-PV', 'DELUXE',  16000.00, 'Deluxe Pool View Room with Terrace',     3),
+('DLX-JQ', 'DELUXE',  20000.00, 'Deluxe Room with Private Jacuzzi',       3),
+('STE-JR', 'SUITE',   35000.00, 'Junior Suite with Ocean Panorama',        3),
+('STE-PR', 'SUITE',   55000.00, 'Presidential Suite with Private Pool',    4);
