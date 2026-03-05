@@ -135,11 +135,14 @@ mvn jacoco:report  # Coverage at target/site/jacoco/index.html
 > **Note:** The application must be running before you open the URL in the browser.
 > If you see "404 Not Found" or "ERR_CONNECTION_REFUSED", the server is not started yet.
 
-**Option A — Maven embedded Tomcat (recommended for development):**
+**Option A — Maven embedded Tomcat (recommended):**
 ```bash
 mvn tomcat7:run
 ```
-Then open: [http://localhost:8081/oceanview/](http://localhost:8081/oceanview/)
+Wait for `INFO: Starting ProtocolHandler ["http-bio-8081"]` in the console, then open your browser and go to:
+```
+http://localhost:8081/oceanview/
+```
 
 **Option B — XAMPP Tomcat (or standalone Tomcat on port 8080):**
 ```bash
@@ -147,11 +150,13 @@ mvn clean package -DskipTests
 # Copy target/oceanview-reservation.war to <TOMCAT_HOME>/webapps/
 # Start Tomcat
 ```
-Then open: [http://localhost:8080/oceanview/](http://localhost:8080/oceanview/)
+Then open your browser and go to:
+```
+http://localhost:8080/oceanview/
+```
 
-> **Which URL to use?**
-> - Use [http://localhost:8081/oceanview/](http://localhost:8081/oceanview/) when you ran `mvn tomcat7:run`
-> - Use [http://localhost:8080/oceanview/](http://localhost:8080/oceanview/) when you deployed to XAMPP / standalone Tomcat
+> **Note:** These addresses only work on YOUR computer while the server is running.
+> If you see a blank page or connection error, run `mvn tomcat7:run` first and wait for it to finish starting.
 
 ### 7. Default login credentials
 
