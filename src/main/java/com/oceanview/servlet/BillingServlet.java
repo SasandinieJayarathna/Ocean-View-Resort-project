@@ -11,12 +11,20 @@ import com.oceanview.model.Bill;
 import com.oceanview.service.BillingService;
 // Gson is a Google library that converts Java objects to JSON format
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 // @WebServlet annotation tells Tomcat what URL this servlet responds to
 import javax.servlet.annotation.WebServlet;
 // Importing all the HTTP servlet classes we need (HttpServlet, HttpServletRequest, etc.)
 import javax.servlet.http.*;
 // Importing IOException which is required when we write data to the response
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * BillingServlet - This servlet handles all billing operations.
@@ -34,8 +42,21 @@ import java.io.IOException;
 @WebServlet("/api/billing")
 public class BillingServlet extends HttpServlet {
 
-    // Gson is a Google library that converts Java objects to JSON format
-    private final Gson gson = new Gson();
+    // Gson configured with Java 17-compatible serializers for LocalDate/LocalDateTime
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDate.class, new JsonSerializer<LocalDate>() {
+                @Override
+                public JsonElement serialize(LocalDate src, Type typeOfSrc, JsonSerializationContext ctx) {
+                    return new JsonPrimitive(src.toString());
+                }
+            })
+            .registerTypeAdapter(LocalDateTime.class, new JsonSerializer<LocalDateTime>() {
+                @Override
+                public JsonElement serialize(LocalDateTime src, Type typeOfSrc, JsonSerializationContext ctx) {
+                    return new JsonPrimitive(src.toString());
+                }
+            })
+            .create();
 
     // ==================== POST = Generate a new bill ====================
 

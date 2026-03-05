@@ -224,7 +224,10 @@
     </nav>
 
     <div class="main-content">
-        <h1 class="page-title">New Reservation</h1>
+        <div style="display:flex; align-items:center; gap:1rem; margin-bottom:0.5rem;">
+            <a href="dashboard.html" class="btn btn-outline" style="font-size:0.85rem; padding:6px 16px;">← Dashboard</a>
+            <h1 class="page-title" style="margin:0;">New Reservation</h1>
+        </div>
         <div id="alertContainer"></div>
 
         <div class="card">
@@ -313,7 +316,7 @@
                           'Air Conditioning','Ceiling Fan','Free Wi-Fi','32" Flat-screen TV',
                           'Tea & Coffee Maker','Wardrobe','In-room Safe','Daily Housekeeping']
             },
-            'STD-DBL': {
+            'STD-DB': {
                 bed: '1 Double Bed', size: '28 m²',
                 img: 'images/room2.jpg',
                 short: 'Wi-Fi  •  AC  •  32" TV  •  En-suite Bath',
@@ -321,7 +324,7 @@
                           'Air Conditioning','Ceiling Fan','Free Wi-Fi','32" Flat-screen TV',
                           'Minibar (on request)','Tea & Coffee Maker','Wardrobe','In-room Safe','Daily Housekeeping']
             },
-            'STD-BAL': {
+            'STD-BL': {
                 bed: '1 King Bed', size: '32 m²',
                 img: 'images/room3.jpg',
                 short: 'Balcony  •  Partial Ocean View  •  Wi-Fi  •  AC',
@@ -411,8 +414,25 @@
                     if (rooms.length === 0) {
                         grid.innerHTML = '<div class="empty-state"><p>No rooms available for the selected dates and type.</p></div>';
                     } else {
+                        // Group rooms by sub-type prefix (e.g. STD-TW-01 → STD-TW)
+                        var groups = {};
+                        var groupOrder = [];
                         rooms.forEach(function(room) {
-                            var d    = roomData[room.roomNumber] || {};
+                            var parts = room.roomNumber.split('-');
+                            var prefix = parts[0] + '-' + parts[1];
+                            if (!groups[prefix]) {
+                                groups[prefix] = [];
+                                groupOrder.push(prefix);
+                            }
+                            groups[prefix].push(room);
+                        });
+
+                        groupOrder.forEach(function(prefix) {
+                            var roomList = groups[prefix];
+                            // Use first room in group as the representative
+                            var room = roomList[0];
+                            var availCount = roomList.length;
+                            var d    = roomData[prefix] || {};
                             var type = room.roomType.toLowerCase();
 
                             // ── Image banner ──────────────────────────────
@@ -423,7 +443,8 @@
                             // ── Chips ─────────────────────────────────────
                             var chips = '<span class="chip">' + room.maxOccupancy + ' adults</span>'
                                       + (d.bed  ? '<span class="chip">' + d.bed  + '</span>' : '')
-                                      + (d.size ? '<span class="chip">' + d.size + '</span>' : '');
+                                      + (d.size ? '<span class="chip">' + d.size + '</span>' : '')
+                                      + '<span class="chip">' + availCount + ' available</span>';
 
                             // ── Details list ──────────────────────────────
                             var detailItems = (d.details || []).map(function(item) {
@@ -431,6 +452,10 @@
                             }).join('');
 
                             // Build meal plan price buttons (RO / BB / HB / FB)
+                            // FB always shows; fallback price = hbPrice * 1.10 if fbPrice is missing from DB
+                            var bbVal = room.bbPrice > 0 ? room.bbPrice : Math.round(room.pricePerNight * 1.12);
+                            var hbVal = room.hbPrice > 0 ? room.hbPrice : Math.round(room.pricePerNight * 1.38);
+                            var fbVal = room.fbPrice > 0 ? room.fbPrice : Math.round(hbVal * 1.10);
                             var mealPlanHtml =
                                 '<div class="meal-plan-label">Select Meal Plan</div>' +
                                 '<div class="meal-plan-options">' +
@@ -438,18 +463,18 @@
                                         '<span class="plan-code">RO</span>' +
                                         '<span class="plan-price">LKR ' + formatCurrency(room.pricePerNight) + '</span>' +
                                     '</div>' +
-                                    (room.bbPrice ? '<div class="meal-plan-btn" onclick="selectMealPlan(this,\'BB\',' + room.roomId + ')">' +
+                                    '<div class="meal-plan-btn" onclick="selectMealPlan(this,\'BB\',' + room.roomId + ')">' +
                                         '<span class="plan-code">BB</span>' +
-                                        '<span class="plan-price">LKR ' + formatCurrency(room.bbPrice) + '</span>' +
-                                    '</div>' : '') +
-                                    (room.hbPrice ? '<div class="meal-plan-btn" onclick="selectMealPlan(this,\'HB\',' + room.roomId + ')">' +
+                                        '<span class="plan-price">LKR ' + formatCurrency(bbVal) + '</span>' +
+                                    '</div>' +
+                                    '<div class="meal-plan-btn" onclick="selectMealPlan(this,\'HB\',' + room.roomId + ')">' +
                                         '<span class="plan-code">HB</span>' +
-                                        '<span class="plan-price">LKR ' + formatCurrency(room.hbPrice) + '</span>' +
-                                    '</div>' : '') +
-                                    (room.fbPrice ? '<div class="meal-plan-btn" onclick="selectMealPlan(this,\'FB\',' + room.roomId + ')">' +
+                                        '<span class="plan-price">LKR ' + formatCurrency(hbVal) + '</span>' +
+                                    '</div>' +
+                                    '<div class="meal-plan-btn" onclick="selectMealPlan(this,\'FB\',' + room.roomId + ')">' +
                                         '<span class="plan-code">FB</span>' +
-                                        '<span class="plan-price">LKR ' + formatCurrency(room.fbPrice) + '</span>' +
-                                    '</div>' : '') +
+                                        '<span class="plan-price">LKR ' + formatCurrency(fbVal) + '</span>' +
+                                    '</div>' +
                                 '</div>';
 
                             var card = document.createElement('div');
