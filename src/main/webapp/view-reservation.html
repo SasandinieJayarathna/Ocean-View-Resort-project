@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Reservations - Ocean View Resort</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="view-reservation">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="dashboard.html" class="logo">Ocean View</a>
+        <ul class="nav-links">
+            <li><a href="add-reservation.html">Add Reservation</a></li>
+            <li><a href="view-reservation.html" class="active">View Reservations</a></li>
+            <li><a href="billing.html">Billing</a></li>
+            <li><a href="reports.html">Reports</a></li>
+            <li><a href="help.html">Help</a></li>
+        </ul>
+        <div class="user-info">
+            <span id="navUserName"></span>
+            <a href="logout">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h1 class="page-title">View Reservations</h1>
+
+        <!-- Alert Messages -->
+        <div id="alertContainer"></div>
+
+        <!-- Search Section -->
+        <div class="card">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search by reservation number, guest name, or phone...">
+                <button class="btn btn-primary" onclick="searchReservations()">Search</button>
+                <button class="btn btn-outline" onclick="loadAllReservations()">View All</button>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading reservations...</p>
+        </div>
+
+        <!-- Results Table -->
+        <div class="card" id="resultsCard" style="display: none;">
+            <div class="card-header">Reservations (<span id="resultCount">0</span> found)</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Reservation #</th>
+                        <th>Guest Name</th>
+                        <th>Room Type</th>
+                        <th>Check-In</th>
+                        <th>Check-Out</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="reservationResults"></tbody>
+            </table>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <p>No reservations found. Try a different search term.</p>
+        </div>
+
+        <!-- Detail Panel -->
+        <div class="card detail-panel" id="detailPanel">
+            <div class="card-header">Reservation Details</div>
+            <div class="detail-grid" id="detailGrid"></div>
+            <div style="margin-top: 1rem;">
+                <button class="btn btn-outline btn-sm" onclick="closeDetail()">Close</button>
+            </div>
+        </div>
+
+        <!-- Confirmation Modal -->
+        <div class="modal-overlay" id="cancelModal">
+            <div class="modal">
+                <div class="modal-header">Cancel Reservation</div>
+                <p>Are you sure you want to cancel this reservation? This action cannot be undone.</p>
+                <div class="modal-actions">
+                    <button class="btn btn-outline" onclick="closeCancelModal()">No, Keep It</button>
+                    <button class="btn btn-danger" id="confirmCancelBtn">Yes, Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        var cancelReservationId = null;
+
+        // Search on Enter key
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') searchReservations();
+        });
+
+        function searchReservations() {
+            var query = document.getElementById('searchInput').value.trim();
+            if (!query) { showAlert('error', 'Please enter a search term'); return; }
+
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('resultsCard').style.display = 'none';
+
+            apiCall('/api/reservations?search=' + encodeURIComponent(query), 'GET')
+                .then(function(data) { displayResults(data); })
+                .catch(function(err) { showAlert('error', 'Search failed'); });
+        }
+
+        function loadAllReservations() {
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('resultsCard').style.display = 'none';
+
+            apiCall('/api/reservations', 'GET')
+                .then(function(data) { displayResults(data); })
+                .catch(function(err) { showAlert('error', 'Failed to load reservations'); });
+        }
+
+        function displayResults(reservations) {
+            document.getElementById('loading').classList.remove('active');
+            var tbody = document.getElementById('reservationResults');
+            tbody.innerHTML = '';
+
+            if (!reservations || reservations.length === 0) {
+                document.getElementById('resultsCard').style.display = 'none';
+                document.getElementById('emptyState').style.display = '';
+                return;
+            }
+
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('resultCount').textContent = reservations.length;
+
+            reservations.forEach(function(r) {
+                var row = document.createElement('tr');
+                row.style.cursor = 'pointer';
+                row.onclick = function() { showDetail(r); };
+                var cancelBtn = r.status !== 'CANCELLED' ?
+                    '<button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); openCancelModal(' + r.reservationId + ')">Cancel</button>' : '';
+                row.innerHTML =
+                    '<td>' + r.reservationNumber + '</td>' +
+                    '<td>' + r.guestName + '</td>' +
+                    '<td>' + r.roomType + '</td>' +
+                    '<td>' + r.checkInDate + '</td>' +
+                    '<td>' + r.checkOutDate + '</td>' +
+                    '<td><span class="badge badge-' + r.status.toLowerCase().replace('_','-') + '">' + r.status + '</span></td>' +
+                    '<td>' + cancelBtn + '</td>';
+                tbody.appendChild(row);
+            });
+            document.getElementById('resultsCard').style.display = '';
+        }
+
+        function showDetail(r) {
+            var grid = document.getElementById('detailGrid');
+            grid.innerHTML =
+                '<div class="detail-label">Reservation #</div><div class="detail-value">' + r.reservationNumber + '</div>' +
+                '<div class="detail-label">Guest Name</div><div class="detail-value">' + r.guestName + '</div>' +
+                '<div class="detail-label">Contact</div><div class="detail-value">' + r.contactNumber + '</div>' +
+                '<div class="detail-label">Email</div><div class="detail-value">' + (r.guestEmail || 'N/A') + '</div>' +
+                '<div class="detail-label">Address</div><div class="detail-value">' + (r.guestAddress || 'N/A') + '</div>' +
+                '<div class="detail-label">Room Type</div><div class="detail-value">' + r.roomType + '</div>' +
+                '<div class="detail-label">Check-In</div><div class="detail-value">' + r.checkInDate + '</div>' +
+                '<div class="detail-label">Check-Out</div><div class="detail-value">' + r.checkOutDate + '</div>' +
+                '<div class="detail-label">Status</div><div class="detail-value"><span class="badge badge-' + r.status.toLowerCase().replace('_','-') + '">' + r.status + '</span></div>' +
+                '<div class="detail-label">Special Requests</div><div class="detail-value">' + (r.specialRequests || 'None') + '</div>';
+            document.getElementById('detailPanel').classList.add('active');
+        }
+
+        function closeDetail() { document.getElementById('detailPanel').classList.remove('active'); }
+
+        function openCancelModal(id) {
+            cancelReservationId = id;
+            document.getElementById('cancelModal').classList.add('active');
+        }
+
+        function closeCancelModal() {
+            cancelReservationId = null;
+            document.getElementById('cancelModal').classList.remove('active');
+        }
+
+        document.getElementById('confirmCancelBtn').addEventListener('click', function() {
+            if (!cancelReservationId) return;
+            apiCall('/api/reservations?id=' + cancelReservationId, 'DELETE')
+                .then(function(data) {
+                    closeCancelModal();
+                    if (data.success) {
+                        showAlert('success', 'Reservation cancelled successfully');
+                        loadAllReservations();
+                    } else {
+                        showAlert('error', data.error || 'Failed to cancel');
+                    }
+                })
+                .catch(function(err) { closeCancelModal(); showAlert('error', 'Failed to cancel'); });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing - Ocean View Resort</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="billing">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="dashboard.html" class="logo">Ocean View</a>
+        <ul class="nav-links">
+            <li><a href="add-reservation.html">Add Reservation</a></li>
+            <li><a href="view-reservation.html">View Reservations</a></li>
+            <li><a href="billing.html" class="active">Billing</a></li>
+            <li><a href="reports.html">Reports</a></li>
+            <li><a href="help.html">Help</a></li>
+        </ul>
+        <div class="user-info">
+            <span id="navUserName"></span>
+            <a href="logout">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h1 class="page-title">Generate Bill</h1>
+
+        <!-- Alert Messages -->
+        <div id="alertContainer"></div>
+
+        <!-- Search Reservation -->
+        <div class="card">
+            <div class="card-header">Lookup Reservation</div>
+            <div class="search-bar">
+                <input type="text" id="resNumberInput" placeholder="Enter reservation number (e.g., RES-100001)">
+                <button class="btn btn-primary" onclick="lookupReservation()">Lookup</button>
+            </div>
+        </div>
+
+        <!-- Reservation Summary -->
+        <div class="card" id="resSummary" style="display: none;">
+            <div class="card-header">Reservation Summary</div>
+            <div class="detail-grid" id="resSummaryGrid"></div>
+
+            <!-- Strategy Selection -->
+            <div class="form-group" style="margin-top: 1.5rem;">
+                <label for="strategyType">Billing Strategy</label>
+                <select id="strategyType">
+                    <option value="STANDARD">Standard Billing</option>
+                    <option value="SEASONAL">Seasonal (20% surcharge)</option>
+                    <option value="LOYALTY">Loyalty (10% discount)</option>
+                </select>
+            </div>
+
+            <button class="btn btn-success" onclick="generateBill()">Generate Bill</button>
+        </div>
+
+        <!-- Bill / Invoice Display -->
+        <div id="billDisplay" style="display: none;">
+            <div class="invoice" id="invoiceContent">
+                <div class="invoice-header">
+                    <h2>Ocean View Resort</h2>
+                    <p>Galle, Sri Lanka</p>
+                    <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">TAX INVOICE</p>
+                </div>
+
+                <div class="invoice-details" id="invoiceDetails"></div>
+
+                <table id="invoiceTable">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th style="text-align: right;">Amount (LKR)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoiceBody"></tbody>
+                </table>
+
+                <div class="invoice-total" id="invoiceTotal"></div>
+            </div>
+
+            <div style="text-align: center; margin-top: 1rem;">
+                <button class="btn btn-primary" onclick="window.print()">Print Bill</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        var currentReservation = null;
+
+        // Lookup on Enter key
+        document.getElementById('resNumberInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') lookupReservation();
+        });
+
+        function lookupReservation() {
+            var number = document.getElementById('resNumberInput').value.trim();
+            if (!number) { showAlert('error', 'Enter a reservation number'); return; }
+
+            apiCall('/api/reservations?number=' + encodeURIComponent(number), 'GET')
+                .then(function(data) {
+                    if (data.error) { showAlert('error', data.error); return; }
+                    currentReservation = data;
+
+                    var nights = Math.ceil((new Date(data.checkOutDate) - new Date(data.checkInDate)) / (1000*60*60*24));
+                    var grid = document.getElementById('resSummaryGrid');
+                    grid.innerHTML =
+                        '<div class="detail-label">Reservation #</div><div class="detail-value">' + data.reservationNumber + '</div>' +
+                        '<div class="detail-label">Guest Name</div><div class="detail-value">' + data.guestName + '</div>' +
+                        '<div class="detail-label">Room Type</div><div class="detail-value">' + data.roomType + '</div>' +
+                        '<div class="detail-label">Check-In</div><div class="detail-value">' + data.checkInDate + '</div>' +
+                        '<div class="detail-label">Check-Out</div><div class="detail-value">' + data.checkOutDate + '</div>' +
+                        '<div class="detail-label">Nights</div><div class="detail-value">' + nights + '</div>' +
+                        '<div class="detail-label">Status</div><div class="detail-value"><span class="badge badge-' + data.status.toLowerCase().replace('_','-') + '">' + data.status + '</span></div>';
+
+                    document.getElementById('resSummary').style.display = '';
+                    document.getElementById('billDisplay').style.display = 'none';
+                })
+                .catch(function(err) { showAlert('error', 'Reservation not found'); });
+        }
+
+        function generateBill() {
+            if (!currentReservation) return;
+
+            var strategy = document.getElementById('strategyType').value;
+            var formData = 'reservationId=' + currentReservation.reservationId + '&strategyType=' + strategy;
+
+            apiCall('/api/billing', 'POST', formData)
+                .then(function(bill) {
+                    if (bill.error) { showAlert('error', bill.error); return; }
+
+                    // Populate invoice
+                    var details = document.getElementById('invoiceDetails');
+                    details.innerHTML =
+                        '<dt>Reservation #</dt><dd>' + currentReservation.reservationNumber + '</dd>' +
+                        '<dt>Guest</dt><dd>' + currentReservation.guestName + '</dd>' +
+                        '<dt>Room Type</dt><dd>' + currentReservation.roomType + '</dd>' +
+                        '<dt>Strategy</dt><dd>' + bill.billingStrategy + '</dd>' +
+                        '<dt>Check-In</dt><dd>' + currentReservation.checkInDate + '</dd>' +
+                        '<dt>Check-Out</dt><dd>' + currentReservation.checkOutDate + '</dd>';
+
+                    var tbody = document.getElementById('invoiceBody');
+                    tbody.innerHTML =
+                        '<tr><td>Room Rate (' + bill.numberOfNights + ' nights x LKR ' + formatCurrency(bill.roomRate) + ')</td><td style="text-align:right">' + formatCurrency(bill.subtotal) + '</td></tr>' +
+                        '<tr><td>Discount (' + bill.discountPercent + '%)</td><td style="text-align:right">-' + formatCurrency(bill.discountAmount) + '</td></tr>' +
+                        '<tr><td>Tax (' + bill.taxRate + '%)</td><td style="text-align:right">' + formatCurrency(bill.taxAmount) + '</td></tr>';
+
+                    document.getElementById('invoiceTotal').textContent = 'TOTAL: LKR ' + formatCurrency(bill.totalAmount);
+                    document.getElementById('billDisplay').style.display = '';
+                    showAlert('success', 'Bill generated successfully');
+                })
+                .catch(function(err) { showAlert('error', 'Failed to generate bill'); });
+        }
+    </script>
+</body>
+</html>
