@@ -2,171 +2,424 @@
 <html lang="en">
 <!--
     Ocean View Resort - Login Page
-    This is the first page users see when they visit the system.
-    It shows a login form with an ocean-themed background image (Ocean resort.webp).
-    Features:
-    - Professional resort background image for visual appeal
-    - OVR Galle logo branding
-    - Responsive login form with client-side validation
-    - Glassmorphism effect on login card for modern design
-    When the user submits the form, JavaScript sends the data to LoginServlet.
+    Professional Room Reservation Management System
 
-    Updated: Added Ocean resort.webp background image and OVR Galle logo for branding (v2.0.1)
+    Features:
+    - Split-screen layout: real resort photo (left) + login form (right)
+    - Custom SVG logo displayed on the login panel
+    - Smooth animations and fade-in effects
+    - Client-side validation with error handling
+    - Fully responsive (stacks vertically on mobile)
+
+    Version: v2.2.0 - Real image + SVG logo design
 -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ocean View Resort - Login</title>
     <link rel="stylesheet" href="css/style.css">
-
-    <!-- Extra styles just for the login page (ocean background image) -->
     <style>
-        /* Full-screen ocean background for the login page with Ocean resort image */
+
+        /* ── RESET ── */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* ── PAGE WRAPPER: full-screen flex row ── */
         .login-page {
-            background:
-                linear-gradient(135deg, rgba(2, 62, 138, 0.5), rgba(0, 119, 182, 0.4)),
-                url('../images/Ocean\ resort.webp') center center / cover no-repeat;
-            background-attachment: fixed;
+            display: flex;
             min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4f8;
+        }
+
+        /* ════════════════════════════════════════
+           LEFT PANEL  –  real resort photo
+        ════════════════════════════════════════ */
+        .photo-panel {
+            flex: 1.2;                      /* wider than form panel */
+            position: relative;
+            overflow: hidden;
+            min-height: 100vh;
+        }
+
+        /* the actual resort photograph */
+        .photo-panel img.resort-photo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+            animation: zoomIn 20s ease-in-out infinite alternate;
+        }
+
+        /* slow Ken-Burns zoom on the photo */
+        @keyframes zoomIn {
+            from { transform: scale(1.0); }
+            to   { transform: scale(1.08); }
+        }
+
+        /* dark gradient over the photo so text is readable */
+        .photo-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                135deg,
+                rgba(2, 62, 138, 0.65) 0%,
+                rgba(0, 119, 182, 0.45) 60%,
+                rgba(0, 0, 0, 0.25) 100%
+            );
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 3rem;
+        }
+
+        /* resort name text on the photo */
+        .photo-text h2 {
+            color: #fff;
+            font-size: 2.4rem;
+            font-weight: 800;
+            line-height: 1.2;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.4);
+            margin-bottom: 0.5rem;
+        }
+
+        .photo-text p {
+            color: rgba(255,255,255,0.85);
+            font-size: 1.05rem;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            text-shadow: 0 1px 6px rgba(0,0,0,0.4);
+        }
+
+        /* thin decorative accent line */
+        .photo-text::before {
+            content: '';
+            display: block;
+            width: 50px;
+            height: 4px;
+            background: #00b4d8;
+            border-radius: 2px;
+            margin-bottom: 1rem;
+        }
+
+        /* ════════════════════════════════════════
+           RIGHT PANEL  –  login form
+        ════════════════════════════════════════ */
+        .form-panel {
+            flex: 0 0 420px;
+            background: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 3rem 2.5rem;
+            box-shadow: -8px 0 40px rgba(0,0,0,0.12);
+            animation: slideInRight 0.5s ease-out;
         }
 
-        /* The white login box in the middle */
-        .login-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 16px;
-            padding: 2.5rem;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(40px); }
+            to   { opacity: 1; transform: translateX(0); }
         }
 
-        /* Ocean wave decoration at the bottom of login card */
-        .ocean-decoration {
+        .form-inner {
+            width: 100%;
+            max-width: 340px;
+        }
+
+        /* ── SVG LOGO ── */
+        .logo-wrap {
             text-align: center;
-            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .logo-wrap svg {
+            width: 90px;
+            height: 90px;
+            filter: drop-shadow(0 4px 10px rgba(0, 119, 182, 0.25));
+            transition: transform 0.3s ease;
+        }
+
+        .logo-wrap svg:hover { transform: scale(1.06); }
+
+        /* ── FORM HEADING ── */
+        .form-heading {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .form-heading h1 {
+            color: #023e8a;
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .form-heading .sub {
             color: #0077b6;
-            font-size: 1.5rem;
-            letter-spacing: 4px;
-            opacity: 0.5;
+            font-size: 0.88rem;
+            font-weight: 500;
         }
 
-        /* Resort image above the login form */
-        .resort-image {
-            text-align: center;
-            margin-bottom: 1rem;
+        .form-heading .sys {
+            color: #888;
+            font-size: 0.8rem;
+            margin-top: 0.3rem;
+            font-style: italic;
         }
-        .resort-image img {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            border: 3px solid #0077b6;
-            object-fit: cover;
+
+        /* ── FORM FIELDS ── */
+        .field {
+            margin-bottom: 1.2rem;
+        }
+
+        .field label {
+            display: block;
+            color: #023e8a;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 0.45rem;
+        }
+
+        .field input {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            border: 2px solid #dde3ed;
+            border-radius: 10px;
+            font-size: 0.97rem;
+            background: #f7f9fc;
+            transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+        }
+
+        .field input:focus {
+            outline: none;
+            border-color: #0077b6;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.12);
+        }
+
+        .field input::placeholder { color: #aaa; }
+
+        /* ── ERROR BOX ── */
+        .error-box {
+            background: #fff0f0;
+            border-left: 4px solid #e63946;
+            color: #b31b2a;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            font-size: 0.88rem;
+            margin-bottom: 1rem;
+            animation: shake 0.3s ease;
+        }
+
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            25%      { transform: translateX(-6px); }
+            75%      { transform: translateX(6px); }
+        }
+
+        /* ── SIGN IN BUTTON ── */
+        .btn-signin {
+            width: 100%;
+            padding: 0.9rem;
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.97rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-signin:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(0, 119, 182, 0.35);
+        }
+
+        .btn-signin:active  { transform: translateY(0); }
+        .btn-signin:disabled { opacity: 0.65; cursor: not-allowed; }
+
+        /* ── DIVIDER + FOOTER ── */
+        .divider {
+            text-align: center;
+            margin: 1.5rem 0 0.8rem;
+            color: #0077b6;
+            font-size: 1rem;
+            letter-spacing: 4px;
+            opacity: 0.35;
+        }
+
+        .form-footer {
+            text-align: center;
+            color: #aaa;
+            font-size: 0.78rem;
+        }
+
+        /* ════════════════════════════════════════
+           RESPONSIVE  –  below 768 px
+           Stack: photo on top, form below
+        ════════════════════════════════════════ */
+        @media (max-width: 768px) {
+            .login-page    { flex-direction: column; }
+
+            .photo-panel   {
+                flex: none;
+                height: 260px;
+                min-height: unset;
+            }
+
+            .photo-overlay { padding: 1.5rem; }
+
+            .photo-text h2 { font-size: 1.5rem; }
+
+            .form-panel {
+                flex: none;
+                box-shadow: none;
+                padding: 2rem 1.5rem;
+            }
         }
     </style>
 </head>
 <body class="login-page">
 
-    <!-- ====== LOGIN CONTAINER ====== -->
-    <!-- This is the centered white box where the user types their username and password -->
-    <div class="login-container">
-        <div class="login-card">
-
-            <!-- Resort logo/image at the top -->
-            <div class="resort-image">
-                <img src="images/ovr-logo.svg" alt="Ocean View Resort - OVR Galle Logo">
-            </div>
-
-            <!-- Hotel name and location -->
-            <div class="login-header">
-                <h1>Ocean View Resort</h1>
-                <p class="tagline">Galle, Sri Lanka</p>
-            </div>
-
-            <!-- ====== LOGIN FORM ====== -->
-            <!-- When submitted, JavaScript handles it (not a normal form submit) -->
-            <form id="loginForm" class="login-form">
-                <!-- Username input field -->
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username"
-                           placeholder="Enter your username" required>
-                </div>
-
-                <!-- Password input field -->
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password"
-                           placeholder="Enter your password" required>
-                </div>
-
-                <!-- Error message box - hidden by default, shown when login fails -->
-                <div id="errorMessage" class="alert alert-error" style="display: none;"></div>
-
-                <!-- Login button - submits the form -->
-                <button type="submit" class="btn btn-primary btn-full">Login</button>
-            </form>
-
-            <!-- Ocean wave decoration -->
-            <div class="ocean-decoration">~ ~ ~ ~ ~</div>
-
-            <!-- Footer text -->
-            <div class="login-footer">
-                <p>Room Reservation Management System</p>
+    <!-- ══ LEFT: RESORT PHOTO ══ -->
+    <div class="photo-panel">
+        <img
+            src="images/ocean-resort.webp"
+            alt="Ocean View Resort, Galle, Sri Lanka"
+            class="resort-photo"
+        >
+        <div class="photo-overlay">
+            <div class="photo-text">
+                <h2>Ocean View<br>Resort</h2>
+                <p>Galle, Sri Lanka &nbsp;·&nbsp; Est. 2005</p>
             </div>
         </div>
     </div>
 
-    <!-- ====== LOGIN JAVASCRIPT ====== -->
-    <!-- This script handles the login form submission -->
+    <!-- ══ RIGHT: LOGIN FORM ══ -->
+    <div class="form-panel">
+        <div class="form-inner">
+
+            <!-- SVG logo -->
+            <div class="logo-wrap">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="48" fill="#e3f2fd" stroke="#0077b6" stroke-width="2"/>
+                    <path d="M 15 65 Q 20 60 25 65 T 35 65 T 45 65 T 55 65 T 65 65 T 75 65 T 85 65"
+                          stroke="#00b4d8" stroke-width="1.5" fill="none" opacity="0.6"/>
+                    <path d="M 10 72 Q 15 68 20 72 T 30 72 T 40 72 T 50 72 T 60 72 T 70 72 T 80 72 T 90 72"
+                          stroke="#0077b6" stroke-width="1.5" fill="none" opacity="0.8"/>
+                    <ellipse cx="50" cy="70" rx="35" ry="12" fill="#f4d03f" opacity="0.7"/>
+                    <rect x="30" y="50" width="3" height="18" fill="#8b6f47" rx="1"/>
+                    <circle cx="29" cy="48" r="4" fill="#4caf50" opacity="0.8"/>
+                    <circle cx="35" cy="47" r="4" fill="#4caf50" opacity="0.8"/>
+                    <circle cx="28" cy="42" r="3.5" fill="#66bb6a"/>
+                    <circle cx="36" cy="43" r="3.5" fill="#66bb6a"/>
+                    <rect x="48" y="45" width="18" height="20" fill="#e8e8e8" stroke="#999" stroke-width="1"/>
+                    <polygon points="48,45 57,35 66,45" fill="#d32f2f" opacity="0.8"/>
+                    <rect x="51" y="48" width="3" height="3" fill="#0077b6" opacity="0.6"/>
+                    <rect x="57" y="48" width="3" height="3" fill="#0077b6" opacity="0.6"/>
+                    <rect x="51" y="55" width="3" height="3" fill="#0077b6" opacity="0.6"/>
+                    <rect x="57" y="55" width="3" height="3" fill="#0077b6" opacity="0.6"/>
+                    <rect x="56" y="60" width="2" height="5" fill="#8b6f47" rx="0.5"/>
+                    <circle cx="75" cy="20" r="6" fill="#ffb300" opacity="0.8"/>
+                    <line x1="75" y1="10" x2="75" y2="5" stroke="#ffb300" stroke-width="1.5" opacity="0.6"/>
+                    <line x1="85" y1="20" x2="90" y2="20" stroke="#ffb300" stroke-width="1.5" opacity="0.6"/>
+                </svg>
+            </div>
+
+            <!-- Heading -->
+            <div class="form-heading">
+                <h1>Ocean View Resort</h1>
+                <p class="sub">Galle, Sri Lanka</p>
+                <p class="sys">Room Reservation Management System</p>
+            </div>
+
+            <!-- Login form -->
+            <form id="loginForm">
+
+                <div class="field">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username"
+                           placeholder="Enter your username"
+                           required autocomplete="username">
+                </div>
+
+                <div class="field">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password"
+                           placeholder="Enter your password"
+                           required autocomplete="current-password">
+                </div>
+
+                <!-- Error shown here -->
+                <div id="errorMessage" class="error-box" style="display:none;"></div>
+
+                <button type="submit" class="btn-signin">Sign In</button>
+            </form>
+
+            <div class="divider">~ ~ ~ ~</div>
+            <p class="form-footer">© 2025 Ocean View Resort · Galle</p>
+        </div>
+    </div>
+
     <script>
-        // Step 1: Figure out the base URL of our application
-        // This is needed so we can send requests to the correct servlet
         var contextPath = window.location.pathname.substring(
             0, window.location.pathname.lastIndexOf('/')
         ) || '';
 
-        // Step 2: Listen for when the user clicks the Login button
         document.getElementById('loginForm').addEventListener('submit', function(e) {
-            // Prevent the form from doing a normal page reload
             e.preventDefault();
 
-            // Hide any previous error messages
             var errorDiv = document.getElementById('errorMessage');
-            errorDiv.style.display = 'none';
-
-            // Get the values the user typed in
-            var username = document.getElementById('username').value;
+            var btn      = document.querySelector('.btn-signin');
+            var username = document.getElementById('username').value.trim();
             var password = document.getElementById('password').value;
 
-            // Step 3: Send the username and password to the LoginServlet using fetch API
-            // fetch() is a modern way to make HTTP requests in JavaScript
+            errorDiv.style.display = 'none';
+
+            if (!username || !password) {
+                errorDiv.textContent = 'Please enter both username and password.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            btn.disabled    = true;
+            btn.textContent = 'Signing in…';
+
             fetch(contextPath + '/login', {
-                method: 'POST',  // We use POST because we are sending sensitive data
+                method:  'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: 'username=' + encodeURIComponent(username) +
-                      '&password=' + encodeURIComponent(password)
+                body:    'username=' + encodeURIComponent(username) +
+                         '&password=' + encodeURIComponent(password)
             })
-            // Step 4: Convert the response from the server to JSON
-            .then(function(response) {
-                return response.json();
-            })
-            // Step 5: Check if login was successful or not
-            .then(function(data) {
+            .then(r => r.json())
+            .then(data => {
                 if (data.success) {
-                    // Login worked! Redirect to the dashboard page
                     window.location.href = 'dashboard.html';
                 } else {
-                    // Login failed - show the error message from the server
-                    errorDiv.textContent = data.error || 'Login failed. Please try again.';
-                    errorDiv.style.display = 'block';
+                    errorDiv.textContent    = data.error || 'Invalid credentials. Please try again.';
+                    errorDiv.style.display  = 'block';
+                    btn.disabled            = false;
+                    btn.textContent         = 'Sign In';
                 }
             })
-            // Step 6: Handle any network errors (server down, no internet, etc.)
-            .catch(function(err) {
-                errorDiv.textContent = 'Connection error. Please try again.';
+            .catch(() => {
+                errorDiv.textContent   = 'Connection error. Please try again.';
                 errorDiv.style.display = 'block';
+                btn.disabled           = false;
+                btn.textContent        = 'Sign In';
+            });
+        });
+
+        ['username','password'].forEach(id => {
+            document.getElementById(id).addEventListener('focus', function() {
+                document.getElementById('errorMessage').style.display = 'none';
             });
         });
     </script>

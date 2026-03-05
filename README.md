@@ -131,18 +131,26 @@ mvn jacoco:report  # Coverage at target/site/jacoco/index.html
 
 ### 6. Run the application
 
-**Option A — Maven embedded Tomcat:**
+> **Note:** The application must be running before you open the URL in the browser.
+> If you see "404 Not Found" or "ERR_CONNECTION_REFUSED", the server is not started yet.
+
+**Option A — Maven embedded Tomcat (recommended for development):**
 ```bash
 mvn tomcat7:run
-# Open: http://localhost:8081/oceanview/ 
 ```
+Then open: **http://localhost:8081/oceanview/**
 
-**Option B — XAMPP Tomcat (or standalone Tomcat):**
+**Option B — XAMPP Tomcat (or standalone Tomcat on port 8080):**
 ```bash
 mvn clean package -DskipTests
-# Copy target/oceanview.war to <TOMCAT_HOME>/webapps/
-# Start Tomcat and open: http://localhost:8080/oceanview/
+# Copy target/oceanview-reservation.war to <TOMCAT_HOME>/webapps/
+# Start Tomcat
 ```
+Then open: **http://localhost:8080/oceanview/**
+
+> **Which URL to use?**
+> - Use `http://localhost:8081/oceanview/` when you ran `mvn tomcat7:run`
+> - Use `http://localhost:8080/oceanview/` when you deployed to XAMPP / standalone Tomcat
 
 ### 7. Default login credentials
 
@@ -237,6 +245,7 @@ This project follows [Semantic Versioning](https://semver.org/):
 | v1.5.0 | Complete frontend UI |
 | v1.6.0 | CI/CD pipeline |
 | v2.0.0 | Production-ready release |
+| v2.1.0 | Enhanced login page, SVG logo, professional branding |
 
 ---
 
