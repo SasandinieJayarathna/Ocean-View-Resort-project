@@ -139,7 +139,7 @@ mvn jacoco:report  # Coverage at target/site/jacoco/index.html
 ```bash
 mvn tomcat7:run
 ```
-Then open: **http://localhost:8081/oceanview/**
+Then open: [http://localhost:8081/oceanview/](http://localhost:8081/oceanview/)
 
 **Option B — XAMPP Tomcat (or standalone Tomcat on port 8080):**
 ```bash
@@ -147,11 +147,11 @@ mvn clean package -DskipTests
 # Copy target/oceanview-reservation.war to <TOMCAT_HOME>/webapps/
 # Start Tomcat
 ```
-Then open: **http://localhost:8080/oceanview/**
+Then open: [http://localhost:8080/oceanview/](http://localhost:8080/oceanview/)
 
 > **Which URL to use?**
-> - Use `http://localhost:8081/oceanview/` when you ran `mvn tomcat7:run`
-> - Use `http://localhost:8080/oceanview/` when you deployed to XAMPP / standalone Tomcat
+> - Use [http://localhost:8081/oceanview/](http://localhost:8081/oceanview/) when you ran `mvn tomcat7:run`
+> - Use [http://localhost:8080/oceanview/](http://localhost:8080/oceanview/) when you deployed to XAMPP / standalone Tomcat
 
 ### 7. Default login credentials
 
@@ -248,6 +248,7 @@ This project follows [Semantic Versioning](https://semver.org/):
 | v2.0.0 | Production-ready release |
 | v2.1.0 | Enhanced login page, SVG logo, professional branding |
 | v2.2.0 | Meal plan pricing (RO/BB/HB/FB), updated Sri Lankan resort room categories |
+| v2.3.0 | Fix Java 17 Gson serialization bug, expand to 50 rooms, fix session redirect and view reservations |
 
 ---
 
@@ -259,7 +260,7 @@ This project follows [Semantic Versioning](https://semver.org/):
 
 ## GitHub Repository
 
-**URL:** `https://github.com/SasandinieJayarathna/Ocean-View-Resort-project`
+**URL:** [https://github.com/SasandinieJayarathna/Ocean-View-Resort-project](https://github.com/SasandinieJayarathna/Ocean-View-Resort-project)
 
 ---
 
@@ -298,7 +299,11 @@ SELECT * FROM users;
 **View Rooms Table:**
 ```sql
 SELECT * FROM rooms;
--- Shows: 8 rooms (3 standard, 3 deluxe, 2 suites) with prices
+-- Shows: 50 rooms (22 standard, 20 deluxe, 8 suites) with prices
+
+-- Summary by category:
+SELECT room_type, COUNT(*) as total FROM rooms GROUP BY room_type;
+-- STANDARD: 22  |  DELUXE: 20  |  SUITE: 8
 ```
 
 **View Reservations (with guest details):**
