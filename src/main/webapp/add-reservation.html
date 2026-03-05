@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Reservation - Ocean View Resort</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="add-reservation">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="dashboard.html" class="logo">Ocean View</a>
+        <ul class="nav-links">
+            <li><a href="add-reservation.html" class="active">Add Reservation</a></li>
+            <li><a href="view-reservation.html">View Reservations</a></li>
+            <li><a href="billing.html">Billing</a></li>
+            <li><a href="reports.html">Reports</a></li>
+            <li><a href="help.html">Help</a></li>
+        </ul>
+        <div class="user-info">
+            <span id="navUserName"></span>
+            <a href="logout">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h1 class="page-title">New Reservation</h1>
+
+        <!-- Alert Messages -->
+        <div id="alertContainer"></div>
+
+        <div class="card">
+            <div class="card-header">Guest Details</div>
+            <form id="reservationForm">
+                <!-- Guest Information -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="guestName">Guest Name *</label>
+                        <input type="text" id="guestName" name="guestName" placeholder="Full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contactNumber">Contact Number *</label>
+                        <input type="text" id="contactNumber" name="contactNumber" placeholder="+94XXXXXXXXX" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="guestEmail">Email</label>
+                        <input type="email" id="guestEmail" name="guestEmail" placeholder="guest@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="guestAddress">Address</label>
+                        <input type="text" id="guestAddress" name="guestAddress" placeholder="Guest address">
+                    </div>
+                </div>
+
+                <!-- Room and Date Selection -->
+                <div class="card-header" style="margin-top: 1rem;">Room Selection</div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="roomType">Room Type *</label>
+                        <select id="roomType" name="roomType" required>
+                            <option value="">Select room type</option>
+                            <option value="STANDARD">Standard</option>
+                            <option value="DELUXE">Deluxe</option>
+                            <option value="SUITE">Suite</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="checkInDate">Check-In Date *</label>
+                        <input type="date" id="checkInDate" name="checkInDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="checkOutDate">Check-Out Date *</label>
+                        <input type="date" id="checkOutDate" name="checkOutDate" required>
+                    </div>
+                </div>
+
+                <!-- Available Rooms -->
+                <div id="availableRoomsSection" style="display: none;">
+                    <div class="card-header">Available Rooms</div>
+                    <div id="roomGrid" class="room-grid"></div>
+                    <input type="hidden" id="selectedRoomId" name="roomId">
+                </div>
+
+                <!-- Special Requests -->
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label for="specialRequests">Special Requests</label>
+                    <textarea id="specialRequests" name="specialRequests" placeholder="Any special requests..."></textarea>
+                </div>
+
+                <!-- Actions -->
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <button type="submit" class="btn btn-primary">Create Reservation</button>
+                    <button type="reset" class="btn btn-outline">Clear Form</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        // Set minimum date to today
+        var today = new Date().toISOString().split('T')[0];
+        document.getElementById('checkInDate').min = today;
+        document.getElementById('checkOutDate').min = today;
+
+        // Load available rooms when type and dates change
+        ['roomType', 'checkInDate', 'checkOutDate'].forEach(function(id) {
+            document.getElementById(id).addEventListener('change', loadAvailableRooms);
+        });
+
+        function loadAvailableRooms() {
+            var type = document.getElementById('roomType').value;
+            var checkIn = document.getElementById('checkInDate').value;
+            var checkOut = document.getElementById('checkOutDate').value;
+
+            if (!type || !checkIn || !checkOut) return;
+            if (checkOut <= checkIn) {
+                showAlert('error', 'Check-out date must be after check-in date');
+                return;
+            }
+
+            var section = document.getElementById('availableRoomsSection');
+            var grid = document.getElementById('roomGrid');
+
+            apiCall('/api/rooms?checkIn=' + checkIn + '&checkOut=' + checkOut + '&type=' + type, 'GET')
+                .then(function(rooms) {
+                    grid.innerHTML = '';
+                    if (rooms.length === 0) {
+                        grid.innerHTML = '<div class="empty-state"><p>No rooms available for selected dates and type.</p></div>';
+                    } else {
+                        rooms.forEach(function(room) {
+                            var card = document.createElement('div');
+                            card.className = 'room-card';
+                            card.dataset.roomId = room.roomId;
+                            card.innerHTML =
+                                '<div class="room-number">Room ' + room.roomNumber + '</div>' +
+                                '<div class="room-price">LKR ' + formatCurrency(room.pricePerNight) + ' / night</div>' +
+                                '<div class="room-desc">' + (room.description || room.roomType) + '</div>' +
+                                '<div class="room-desc">Max Occupancy: ' + room.maxOccupancy + '</div>';
+                            card.addEventListener('click', function() { selectRoom(this, room.roomId); });
+                            grid.appendChild(card);
+                        });
+                    }
+                    section.style.display = '';
+                })
+                .catch(function(err) { showAlert('error', 'Failed to load rooms'); });
+        }
+
+        function selectRoom(card, roomId) {
+            document.querySelectorAll('.room-card').forEach(function(c) { c.classList.remove('selected'); });
+            card.classList.add('selected');
+            document.getElementById('selectedRoomId').value = roomId;
+        }
+
+        // Form submission
+        document.getElementById('reservationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Client-side validation
+            var name = document.getElementById('guestName').value.trim();
+            var phone = document.getElementById('contactNumber').value.trim();
+            var email = document.getElementById('guestEmail').value.trim();
+            var checkIn = document.getElementById('checkInDate').value;
+            var checkOut = document.getElementById('checkOutDate').value;
+            var roomId = document.getElementById('selectedRoomId').value;
+
+            if (name.length < 2) { showAlert('error', 'Please enter a valid guest name'); return; }
+            if (!/^\+?[0-9]{7,15}$/.test(phone)) { showAlert('error', 'Please enter a valid phone number'); return; }
+            if (email && !/^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$/.test(email)) { showAlert('error', 'Please enter a valid email'); return; }
+            if (checkOut <= checkIn) { showAlert('error', 'Check-out must be after check-in'); return; }
+            if (!roomId) { showAlert('error', 'Please select a room'); return; }
+
+            // Build form data
+            var formData = new URLSearchParams();
+            formData.append('guestName', name);
+            formData.append('guestAddress', document.getElementById('guestAddress').value.trim());
+            formData.append('contactNumber', phone);
+            formData.append('guestEmail', email);
+            formData.append('roomId', roomId);
+            formData.append('checkInDate', checkIn);
+            formData.append('checkOutDate', checkOut);
+            formData.append('specialRequests', document.getElementById('specialRequests').value.trim());
+
+            apiCall('/api/reservations', 'POST', formData.toString())
+                .then(function(data) {
+                    if (data.success) {
+                        showAlert('success', 'Reservation created! Number: ' + data.reservationNumber);
+                        document.getElementById('reservationForm').reset();
+                        document.getElementById('availableRoomsSection').style.display = 'none';
+                    } else {
+                        showAlert('error', data.error || 'Failed to create reservation');
+                    }
+                })
+                .catch(function(err) { showAlert('error', 'Failed to create reservation'); });
+        });
+    </script>
+</body>
+</html>

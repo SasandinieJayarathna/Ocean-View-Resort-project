@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Ocean View Resort</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="dashboard">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="dashboard.html" class="logo">Ocean View</a>
+        <ul class="nav-links">
+            <li><a href="add-reservation.html">Add Reservation</a></li>
+            <li><a href="view-reservation.html">View Reservations</a></li>
+            <li><a href="billing.html">Billing</a></li>
+            <li><a href="reports.html">Reports</a></li>
+            <li><a href="help.html">Help</a></li>
+        </ul>
+        <div class="user-info">
+            <span id="navUserName"></span>
+            <a href="logout">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Welcome Section -->
+        <h1 class="page-title">Welcome, <span id="welcomeName">User</span></h1>
+
+        <!-- Loading Spinner -->
+        <div id="loading" class="loading active">
+            <div class="spinner"></div>
+            <p>Loading dashboard...</p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid" id="statsGrid" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-value" id="todayReservations">0</div>
+                <div class="stat-label">Today's Reservations</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalRooms">0</div>
+                <div class="stat-label">Total Rooms</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="availableRooms">0</div>
+                <div class="stat-label">Available Rooms</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalReservations">0</div>
+                <div class="stat-label">Total Reservations</div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <a href="add-reservation.html" class="btn btn-primary">Add Reservation</a>
+            <a href="view-reservation.html" class="btn btn-secondary">Search Reservation</a>
+        </div>
+
+        <!-- Recent Reservations Table -->
+        <div class="card" id="recentCard" style="display: none;">
+            <div class="card-header">Recent Reservations</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Reservation #</th>
+                        <th>Guest Name</th>
+                        <th>Room Type</th>
+                        <th>Check-In</th>
+                        <th>Check-Out</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="recentReservations"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        // Load dashboard data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboard();
+        });
+
+        function loadDashboard() {
+            apiCall('/api/dashboard', 'GET')
+                .then(function(data) {
+                    // Update user info
+                    document.getElementById('welcomeName').textContent = data.fullName || 'User';
+                    document.getElementById('navUserName').textContent = data.fullName || '';
+
+                    // Update stats
+                    document.getElementById('todayReservations').textContent = data.todayReservations || 0;
+                    document.getElementById('totalRooms').textContent = data.totalRooms || 0;
+                    document.getElementById('availableRooms').textContent = data.availableRooms || 0;
+                    document.getElementById('totalReservations').textContent = data.totalReservations || 0;
+
+                    // Show stats grid
+                    document.getElementById('statsGrid').style.display = '';
+                    document.getElementById('loading').classList.remove('active');
+
+                    // Populate recent reservations
+                    var tbody = document.getElementById('recentReservations');
+                    tbody.innerHTML = '';
+                    if (data.recentReservations && data.recentReservations.length > 0) {
+                        data.recentReservations.forEach(function(r) {
+                            var row = document.createElement('tr');
+                            row.innerHTML =
+                                '<td>' + r.reservationNumber + '</td>' +
+                                '<td>' + r.guestName + '</td>' +
+                                '<td>' + r.roomType + '</td>' +
+                                '<td>' + r.checkInDate + '</td>' +
+                                '<td>' + r.checkOutDate + '</td>' +
+                                '<td><span class="badge badge-' + r.status.toLowerCase().replace('_','-') + '">' + r.status + '</span></td>';
+                            tbody.appendChild(row);
+                        });
+                        document.getElementById('recentCard').style.display = '';
+                    }
+                })
+                .catch(function(err) {
+                    document.getElementById('loading').classList.remove('active');
+                    console.error('Dashboard load error:', err);
+                });
+        }
+    </script>
+</body>
+</html>
