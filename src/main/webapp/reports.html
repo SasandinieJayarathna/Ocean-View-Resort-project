@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - Ocean View Resort</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="reports">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="dashboard.html" class="logo">Ocean View</a>
+        <ul class="nav-links">
+            <li><a href="add-reservation.html">Add Reservation</a></li>
+            <li><a href="view-reservation.html">View Reservations</a></li>
+            <li><a href="billing.html">Billing</a></li>
+            <li><a href="reports.html" class="active">Reports</a></li>
+            <li><a href="help.html">Help</a></li>
+        </ul>
+        <div class="user-info">
+            <span id="navUserName"></span>
+            <a href="logout">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h1 class="page-title">Reports</h1>
+
+        <!-- Alert Messages -->
+        <div id="alertContainer"></div>
+
+        <!-- Access Denied (shown to non-admin users) -->
+        <div class="card" id="accessDenied" style="display: none;">
+            <div class="alert alert-error">Access Denied: Reports are only available to Admin users.</div>
+        </div>
+
+        <!-- Report Controls -->
+        <div class="card" id="reportControls">
+            <div class="card-header">Generate Report</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="startDate">Start Date</label>
+                    <input type="date" id="startDate">
+                </div>
+                <div class="form-group">
+                    <label for="endDate">End Date</label>
+                    <input type="date" id="endDate">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Report Type</label>
+                <div style="display: flex; gap: 2rem; margin-top: 0.5rem;">
+                    <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer;">
+                        <input type="radio" name="reportType" value="occupancy" checked> Occupancy Report
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer;">
+                        <input type="radio" name="reportType" value="revenue"> Revenue Report
+                    </label>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="generateReport()">Generate Report</button>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Generating report...</p>
+        </div>
+
+        <!-- Report Results -->
+        <div class="card" id="reportResults" style="display: none;">
+            <div class="card-header" id="reportTitle">Report Results</div>
+            <table>
+                <thead id="reportHead"></thead>
+                <tbody id="reportBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        // Check admin access on load
+        document.addEventListener('DOMContentLoaded', function() {
+            apiCall('/api/dashboard', 'GET')
+                .then(function(data) {
+                    document.getElementById('navUserName').textContent = data.fullName || '';
+                    if (data.role !== 'ADMIN') {
+                        document.getElementById('accessDenied').style.display = '';
+                        document.getElementById('reportControls').style.display = 'none';
+                    }
+                })
+                .catch(function() {});
+
+            // Default date range: last 30 days
+            var today = new Date();
+            var thirtyAgo = new Date();
+            thirtyAgo.setDate(today.getDate() - 30);
+            document.getElementById('endDate').value = today.toISOString().split('T')[0];
+            document.getElementById('startDate').value = thirtyAgo.toISOString().split('T')[0];
+        });
+
+        function generateReport() {
+            var startDate = document.getElementById('startDate').value;
+            var endDate = document.getElementById('endDate').value;
+            var reportType = document.querySelector('input[name="reportType"]:checked').value;
+
+            if (!startDate || !endDate) { showAlert('error', 'Please select date range'); return; }
+
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('reportResults').style.display = 'none';
+
+            apiCall('/api/reports?type=' + reportType + '&startDate=' + startDate + '&endDate=' + endDate, 'GET')
+                .then(function(result) {
+                    document.getElementById('loading').classList.remove('active');
+
+                    if (result.error) { showAlert('error', result.error); return; }
+
+                    var head = document.getElementById('reportHead');
+                    var body = document.getElementById('reportBody');
+                    head.innerHTML = '';
+                    body.innerHTML = '';
+
+                    if (reportType === 'occupancy') {
+                        document.getElementById('reportTitle').textContent = 'Occupancy Report (' + startDate + ' to ' + endDate + ')';
+                        head.innerHTML = '<tr><th>Room Type</th><th>Total Rooms</th><th>Total Bookings</th><th>Occupancy %</th></tr>';
+                        (result.data || []).forEach(function(row) {
+                            body.innerHTML += '<tr><td>' + row.roomType + '</td><td>' + row.totalRooms + '</td><td>' + row.totalBookings + '</td><td>' + (row.occupancyPercent || 0).toFixed(1) + '%</td></tr>';
+                        });
+                    } else {
+                        document.getElementById('reportTitle').textContent = 'Revenue Report (' + startDate + ' to ' + endDate + ')';
+                        head.innerHTML = '<tr><th>Room Type</th><th>Bills Count</th><th>Total Revenue (LKR)</th><th>Avg Bill (LKR)</th></tr>';
+                        (result.data || []).forEach(function(row) {
+                            body.innerHTML += '<tr><td>' + row.roomType + '</td><td>' + row.billsCount + '</td><td>' + formatCurrency(row.totalRevenue || 0) + '</td><td>' + formatCurrency(row.avgBill || 0) + '</td></tr>';
+                        });
+                    }
+
+                    if (!result.data || result.data.length === 0) {
+                        body.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#999;">No data for selected period</td></tr>';
+                    }
+
+                    document.getElementById('reportResults').style.display = '';
+                })
+                .catch(function(err) {
+                    document.getElementById('loading').classList.remove('active');
+                    showAlert('error', 'Failed to generate report');
+                });
+        }
+    </script>
+</body>
+</html>
