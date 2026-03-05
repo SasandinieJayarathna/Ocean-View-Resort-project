@@ -561,6 +561,7 @@
             formData.append('roomId',          roomId);
             formData.append('checkInDate',     checkIn);
             formData.append('checkOutDate',    checkOut);
+            formData.append('mealPlan',        document.getElementById('selectedMealPlan').value || 'RO');
             formData.append('specialRequests', document.getElementById('specialRequests').value.trim());
 
             apiCall('/api/reservations', 'POST', formData.toString())

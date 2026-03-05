@@ -17,6 +17,11 @@ import com.oceanview.util.InputValidator;
 import com.google.gson.Gson;
 // GsonBuilder lets us customize how Gson converts objects (e.g., setting date format)
 import com.google.gson.GsonBuilder;
+// JsonElement, JsonPrimitive, JsonSerializer are used for custom type adapters
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 // JsonObject lets us manually build JSON responses piece by piece
 import com.google.gson.JsonObject;
 // @WebServlet annotation tells Tomcat what URL this servlet responds to
@@ -25,8 +30,11 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 // Importing IOException which is required when we write data to the response
 import java.io.IOException;
-// Importing LocalDate for handling check-in and check-out dates
+// Importing LocalDate and LocalDateTime for handling reservation dates
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+// Type is needed for the custom serializer method signature
+import java.lang.reflect.Type;
 // Importing List to hold collections of reservations
 import java.util.List;
 
@@ -44,10 +52,23 @@ import java.util.List;
 @WebServlet("/api/reservations")
 public class ReservationServlet extends HttpServlet {
 
-    // Gson is a Google library that converts Java objects to JSON format
-    // We configure it to format dates as "yyyy-MM-dd" (e.g., "2025-06-15")
+    // Gson configured with custom serializers for Java 8 date types.
+    // Without these, Gson tries to reflect on LocalDate/LocalDateTime private fields
+    // which is blocked by the Java 17 module system, causing a 500 error.
     private final Gson gson = new GsonBuilder()
             .setDateFormat("yyyy-MM-dd")
+            .registerTypeAdapter(LocalDate.class, new JsonSerializer<LocalDate>() {
+                @Override
+                public JsonElement serialize(LocalDate src, Type typeOfSrc, JsonSerializationContext ctx) {
+                    return new JsonPrimitive(src.toString()); // e.g. "2025-06-15"
+                }
+            })
+            .registerTypeAdapter(LocalDateTime.class, new JsonSerializer<LocalDateTime>() {
+                @Override
+                public JsonElement serialize(LocalDateTime src, Type typeOfSrc, JsonSerializationContext ctx) {
+                    return new JsonPrimitive(src.toString()); // e.g. "2025-06-15T10:30:00"
+                }
+            })
             .create();
 
     /**
@@ -77,39 +98,32 @@ public class ReservationServlet extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        // We set the response type to JSON so the browser knows what format to expect
         resp.setContentType("application/json");
-        // Set character encoding to UTF-8 so special characters display correctly
         resp.setCharacterEncoding("UTF-8");
-        // Create the reservation service that handles all the business logic
-        ReservationService service = createService();
 
-        // Get the "number" parameter from the URL query string (e.g., ?number=RES-001)
-        String number = req.getParameter("number");
-        // Get the "search" parameter from the URL query string (e.g., ?search=John)
-        String search = req.getParameter("search");
+        try {
+            ReservationService service = createService();
+            String number = req.getParameter("number");
+            String search = req.getParameter("search");
 
-        if (number != null && !number.isEmpty()) {
-            // Case 1: Get a single reservation by its reservation number
-            Reservation r = service.getReservationByNumber(number);
-            if (r != null) {
-                // Convert the Reservation object to JSON and write it to the response
-                resp.getWriter().write(gson.toJson(r));
+            if (number != null && !number.isEmpty()) {
+                Reservation r = service.getReservationByNumber(number);
+                if (r != null) {
+                    resp.getWriter().write(gson.toJson(r));
+                } else {
+                    resp.setStatus(404);
+                    resp.getWriter().write("{\"error\":\"Reservation not found\"}");
+                }
+            } else if (search != null && !search.isEmpty()) {
+                List<Reservation> results = service.searchReservations(search);
+                resp.getWriter().write(gson.toJson(results));
             } else {
-                // If not found, set HTTP status 404 (Not Found) and return an error message
-                resp.setStatus(404);
-                resp.getWriter().write("{\"error\":\"Reservation not found\"}");
+                List<Reservation> all = service.getAllReservations();
+                resp.getWriter().write(gson.toJson(all));
             }
-        } else if (search != null && !search.isEmpty()) {
-            // Case 2: Search for reservations matching the search term
-            List<Reservation> results = service.searchReservations(search);
-            // Convert the list of reservations to a JSON array and send it back
-            resp.getWriter().write(gson.toJson(results));
-        } else {
-            // Case 3: No specific parameters, so return all reservations
-            List<Reservation> all = service.getAllReservations();
-            // Convert the full list to JSON and send it back
-            resp.getWriter().write(gson.toJson(all));
+        } catch (Exception e) {
+            resp.setStatus(500);
+            resp.getWriter().write("{\"error\":\"Server error: " + e.getMessage().replace("\"", "'") + "\"}");
         }
     }
 
@@ -201,23 +215,24 @@ public class ReservationServlet extends HttpServlet {
             reservation.setCreatedBy((Integer) session.getAttribute("userId"));
         }
 
-        // Use the service to save the reservation to the database
-        ReservationService service = createService();
-        boolean created = service.createReservation(reservation);
+        try {
+            // Use the service to save the reservation to the database
+            ReservationService service = createService();
+            boolean created = service.createReservation(reservation);
 
-        // Return a JSON response telling the browser if the creation was successful
-        if (created) {
-            json.addProperty("success", true);
-            // Include the auto-generated reservation number (e.g., "RES-001")
-            json.addProperty("reservationNumber", reservation.getReservationNumber());
-            json.addProperty("message", "Reservation created successfully");
-            resp.getWriter().write(json.toString());
-        } else {
-            // If something went wrong, return a 500 (Internal Server Error) with an error message
+            if (created) {
+                json.addProperty("success", true);
+                json.addProperty("reservationNumber", reservation.getReservationNumber());
+                json.addProperty("message", "Reservation created successfully");
+            } else {
+                resp.setStatus(500);
+                json.addProperty("error", "Failed to create reservation. The room may not be available.");
+            }
+        } catch (Exception e) {
             resp.setStatus(500);
-            json.addProperty("error", "Failed to create reservation");
-            resp.getWriter().write(json.toString());
+            json.addProperty("error", "Server error: " + e.getMessage());
         }
+        resp.getWriter().write(json.toString());
     }
 
     // ==================== PUT = Update existing reservation ====================

@@ -95,6 +95,11 @@
     <script>
         var cancelReservationId = null;
 
+        // Auto-load all reservations when the page opens
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAllReservations();
+        });
+
         // Search on Enter key
         document.getElementById('searchInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') searchReservations();
@@ -109,7 +114,10 @@
 
             apiCall('/api/reservations?search=' + encodeURIComponent(query), 'GET')
                 .then(function(data) { displayResults(data); })
-                .catch(function(err) { showAlert('error', 'Search failed'); });
+                .catch(function(err) {
+                    document.getElementById('loading').classList.remove('active');
+                    showAlert('error', 'Search failed');
+                });
         }
 
         function loadAllReservations() {
@@ -118,15 +126,25 @@
 
             apiCall('/api/reservations', 'GET')
                 .then(function(data) { displayResults(data); })
-                .catch(function(err) { showAlert('error', 'Failed to load reservations'); });
+                .catch(function(err) {
+                    document.getElementById('loading').classList.remove('active');
+                    showAlert('error', 'Failed to load reservations');
+                });
         }
 
         function displayResults(reservations) {
             document.getElementById('loading').classList.remove('active');
+
+            // Guard: server may return {error:"..."} on failure instead of an array
+            if (!Array.isArray(reservations)) {
+                showAlert('error', (reservations && reservations.error) || 'Failed to load reservations');
+                return;
+            }
+
             var tbody = document.getElementById('reservationResults');
             tbody.innerHTML = '';
 
-            if (!reservations || reservations.length === 0) {
+            if (reservations.length === 0) {
                 document.getElementById('resultsCard').style.display = 'none';
                 document.getElementById('emptyState').style.display = '';
                 return;

@@ -5,8 +5,9 @@
 -- tables, stored procedures, triggers, and default data.
 -- =============================================================
 
--- Create the database if it doesn't already exist, then switch to it
-CREATE DATABASE IF NOT EXISTS oceanview_resort;
+-- Drop and recreate the database for a clean setup (idempotent)
+DROP DATABASE IF EXISTS oceanview_resort;
+CREATE DATABASE oceanview_resort CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE oceanview_resort;
 
 -- =============================================================
@@ -124,6 +125,9 @@ CREATE TABLE IF NOT EXISTS audit_log (
 -- It takes a check-in date, check-out date, and optional room type.
 -- It returns rooms that are marked as available AND are not already
 -- booked by another reservation during the requested date range.
+DROP PROCEDURE IF EXISTS sp_get_available_rooms;
+DROP PROCEDURE IF EXISTS sp_occupancy_report;
+DROP PROCEDURE IF EXISTS sp_revenue_report;
 DELIMITER //
 CREATE PROCEDURE sp_get_available_rooms(IN p_in DATE, IN p_out DATE, IN p_type VARCHAR(20))
 BEGIN
@@ -172,6 +176,8 @@ DELIMITER ;
 -- updated. They log changes to the audit_log table.
 -- =============================================================
 
+DROP TRIGGER IF EXISTS trg_reservation_insert;
+DROP TRIGGER IF EXISTS trg_reservation_update;
 -- This trigger automatically logs new reservations to the audit_log table.
 -- Whenever a new reservation is inserted, it records the guest name,
 -- room ID, check-in date, and check-out date.
@@ -207,17 +213,67 @@ INSERT INTO users (username, password_hash, full_name, email, role) VALUES
 ('admin', '$2a$10$95U9YTNkHjTTjyNFW2epZOaG87vizKlKzDVVPONfp7SvA1MnUJfjC', 'System Administrator', 'admin@oceanview.lk', 'ADMIN'),
 ('staff1', '$2a$10$ZsDbWJXzUYi5iQ8iSZ7b0ee0NeGMb4Y.GwXAuhv2U.B2VdIyOwURK', 'Reception Staff', 'staff@oceanview.lk', 'STAFF');
 
--- 8 rooms: 3 standard, 3 deluxe, 2 suites — all prices in LKR per night
+-- 50 rooms: 22 standard, 20 deluxe, 8 suites — all prices in LKR per night
 -- Meal plans: RO = Room Only | BB = Bed & Breakfast | HB = Half Board | FB = Full Board
 -- Standard rooms : RO from LKR 25,000  | max 2 guests
 -- Deluxe rooms   : RO from LKR 45,000  | max 3 guests
 -- Suites         : RO from LKR 80,000  | max 3-4 guests
 INSERT INTO rooms (room_number, room_type, price_per_night, bb_price, hb_price, fb_price, description, max_occupancy) VALUES
-('STD-TW', 'STANDARD',  25000.00,  28000.00,  34500.00,  38000.00, 'Standard Room with Twin Beds',          2),
-('STD-DBL','STANDARD',  25000.00,  28000.00,  34500.00,  38000.00, 'Standard Room with Double Bed',          2),
-('STD-BAL','STANDARD',  30000.00,  33500.00,  40500.00,  44500.00, 'Standard Room with Balcony',             2),
-('DLX-OV', 'DELUXE',   45000.00,  49000.00,  57000.00,  62500.00, 'Deluxe Ocean View Room',                 3),
-('DLX-PV', 'DELUXE',   48000.00,  52000.00,  60500.00,  66000.00, 'Deluxe Pool View Room with Terrace',     3),
-('DLX-JQ', 'DELUXE',   55000.00,  60000.00,  68500.00,  74000.00, 'Deluxe Room with Private Jacuzzi',       3),
-('STE-JR', 'SUITE',    80000.00,  86500.00,  97000.00, 105000.00, 'Junior Suite with Ocean Panorama',        3),
-('STE-PR', 'SUITE',   130000.00, 139500.00, 153000.00, 163000.00, 'Presidential Suite with Private Pool',    4);
+-- Standard Twin (8 rooms)
+('STD-TW-01','STANDARD', 25000.00, 28000.00, 34500.00, 38000.00, 'Standard Room with Twin Beds', 2),
+('STD-TW-02','STANDARD', 25000.00, 28000.00, 34500.00, 38000.00, 'Standard Room with Twin Beds', 2),
+('STD-TW-03','STANDARD', 25000.00, 28000.00, 34500.00, 38000.00, 'Standard Room with Twin Beds', 2),
+('STD-TW-04','STANDARD', 25000.00, 28000.00, 34500.00, 38000.00, 'Standard Room with Twin Beds', 2),
+('STD-TW-05','STANDARD', 25000.00, 28000.00, 34500.00, 38000.00, 'Standard Room with Twin Beds', 2),
+('STD-TW-06','STANDARD', 25000.00, 28000.00, 34500.00, 38000.00, 'Standard Room with Twin Beds', 2),
+('STD-TW-07','STANDARD', 25000.00, 28000.00, 34500.00, 38000.00, 'Standard Room with Twin Beds', 2),
+('STD-TW-08','STANDARD', 25000.00, 28000.00, 34500.00, 38000.00, 'Standard Room with Twin Beds', 2),
+-- Standard Double (8 rooms)
+('STD-DB-01','STANDARD', 25000.00, 28000.00, 34500.00, 38000.00, 'Standard Room with Double Bed', 2),
+('STD-DB-02','STANDARD', 25000.00, 28000.00, 34500.00, 38000.00, 'Standard Room with Double Bed', 2),
+('STD-DB-03','STANDARD', 25000.00, 28000.00, 34500.00, 38000.00, 'Standard Room with Double Bed', 2),
+('STD-DB-04','STANDARD', 25000.00, 28000.00, 34500.00, 38000.00, 'Standard Room with Double Bed', 2),
+('STD-DB-05','STANDARD', 25000.00, 28000.00, 34500.00, 38000.00, 'Standard Room with Double Bed', 2),
+('STD-DB-06','STANDARD', 25000.00, 28000.00, 34500.00, 38000.00, 'Standard Room with Double Bed', 2),
+('STD-DB-07','STANDARD', 25000.00, 28000.00, 34500.00, 38000.00, 'Standard Room with Double Bed', 2),
+('STD-DB-08','STANDARD', 25000.00, 28000.00, 34500.00, 38000.00, 'Standard Room with Double Bed', 2),
+-- Standard Balcony (6 rooms)
+('STD-BL-01','STANDARD', 30000.00, 33500.00, 40500.00, 44500.00, 'Standard Room with Balcony', 2),
+('STD-BL-02','STANDARD', 30000.00, 33500.00, 40500.00, 44500.00, 'Standard Room with Balcony', 2),
+('STD-BL-03','STANDARD', 30000.00, 33500.00, 40500.00, 44500.00, 'Standard Room with Balcony', 2),
+('STD-BL-04','STANDARD', 30000.00, 33500.00, 40500.00, 44500.00, 'Standard Room with Balcony', 2),
+('STD-BL-05','STANDARD', 30000.00, 33500.00, 40500.00, 44500.00, 'Standard Room with Balcony', 2),
+('STD-BL-06','STANDARD', 30000.00, 33500.00, 40500.00, 44500.00, 'Standard Room with Balcony', 2),
+-- Deluxe Ocean View (7 rooms)
+('DLX-OV-01','DELUXE',  45000.00, 49000.00, 57000.00, 62500.00, 'Deluxe Ocean View Room', 3),
+('DLX-OV-02','DELUXE',  45000.00, 49000.00, 57000.00, 62500.00, 'Deluxe Ocean View Room', 3),
+('DLX-OV-03','DELUXE',  45000.00, 49000.00, 57000.00, 62500.00, 'Deluxe Ocean View Room', 3),
+('DLX-OV-04','DELUXE',  45000.00, 49000.00, 57000.00, 62500.00, 'Deluxe Ocean View Room', 3),
+('DLX-OV-05','DELUXE',  45000.00, 49000.00, 57000.00, 62500.00, 'Deluxe Ocean View Room', 3),
+('DLX-OV-06','DELUXE',  45000.00, 49000.00, 57000.00, 62500.00, 'Deluxe Ocean View Room', 3),
+('DLX-OV-07','DELUXE',  45000.00, 49000.00, 57000.00, 62500.00, 'Deluxe Ocean View Room', 3),
+-- Deluxe Pool View (7 rooms)
+('DLX-PV-01','DELUXE',  48000.00, 52000.00, 60500.00, 66000.00, 'Deluxe Pool View Room with Terrace', 3),
+('DLX-PV-02','DELUXE',  48000.00, 52000.00, 60500.00, 66000.00, 'Deluxe Pool View Room with Terrace', 3),
+('DLX-PV-03','DELUXE',  48000.00, 52000.00, 60500.00, 66000.00, 'Deluxe Pool View Room with Terrace', 3),
+('DLX-PV-04','DELUXE',  48000.00, 52000.00, 60500.00, 66000.00, 'Deluxe Pool View Room with Terrace', 3),
+('DLX-PV-05','DELUXE',  48000.00, 52000.00, 60500.00, 66000.00, 'Deluxe Pool View Room with Terrace', 3),
+('DLX-PV-06','DELUXE',  48000.00, 52000.00, 60500.00, 66000.00, 'Deluxe Pool View Room with Terrace', 3),
+('DLX-PV-07','DELUXE',  48000.00, 52000.00, 60500.00, 66000.00, 'Deluxe Pool View Room with Terrace', 3),
+-- Deluxe Jacuzzi (6 rooms)
+('DLX-JQ-01','DELUXE',  55000.00, 60000.00, 68500.00, 74000.00, 'Deluxe Room with Private Jacuzzi', 3),
+('DLX-JQ-02','DELUXE',  55000.00, 60000.00, 68500.00, 74000.00, 'Deluxe Room with Private Jacuzzi', 3),
+('DLX-JQ-03','DELUXE',  55000.00, 60000.00, 68500.00, 74000.00, 'Deluxe Room with Private Jacuzzi', 3),
+('DLX-JQ-04','DELUXE',  55000.00, 60000.00, 68500.00, 74000.00, 'Deluxe Room with Private Jacuzzi', 3),
+('DLX-JQ-05','DELUXE',  55000.00, 60000.00, 68500.00, 74000.00, 'Deluxe Room with Private Jacuzzi', 3),
+('DLX-JQ-06','DELUXE',  55000.00, 60000.00, 68500.00, 74000.00, 'Deluxe Room with Private Jacuzzi', 3),
+-- Junior Suite (5 rooms)
+('STE-JR-01','SUITE',   80000.00, 86500.00, 97000.00,105000.00, 'Junior Suite with Ocean Panorama', 3),
+('STE-JR-02','SUITE',   80000.00, 86500.00, 97000.00,105000.00, 'Junior Suite with Ocean Panorama', 3),
+('STE-JR-03','SUITE',   80000.00, 86500.00, 97000.00,105000.00, 'Junior Suite with Ocean Panorama', 3),
+('STE-JR-04','SUITE',   80000.00, 86500.00, 97000.00,105000.00, 'Junior Suite with Ocean Panorama', 3),
+('STE-JR-05','SUITE',   80000.00, 86500.00, 97000.00,105000.00, 'Junior Suite with Ocean Panorama', 3),
+-- Presidential Suite (3 rooms)
+('STE-PR-01','SUITE',  130000.00,139500.00,153000.00,163000.00, 'Presidential Suite with Private Pool', 4),
+('STE-PR-02','SUITE',  130000.00,139500.00,153000.00,163000.00, 'Presidential Suite with Private Pool', 4),
+('STE-PR-03','SUITE',  130000.00,139500.00,153000.00,163000.00, 'Presidential Suite with Private Pool', 4);

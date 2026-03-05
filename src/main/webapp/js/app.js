@@ -38,7 +38,8 @@ function apiCall(endpoint, method, data) {
 
 /**
  * Session check — verifies user is logged in.
- * Redirects to login page if session is invalid.
+ * Only redirects to login page on 401 (not authenticated).
+ * Does NOT redirect on DB errors or server errors.
  */
 function checkSession() {
     apiCall('/api/dashboard', 'GET')
@@ -47,9 +48,12 @@ function checkSession() {
             var navUser = document.getElementById('navUserName');
             if (navUser) navUser.textContent = data.fullName || '';
         })
-        .catch(function() {
-            // Redirect to login if not authenticated
-            window.location.href = BASE_URL + '/index.html';
+        .catch(function(err) {
+            // Only redirect to login if the server explicitly said "not authenticated" (401)
+            // For DB errors or server errors, stay on the page
+            if (err && err.message === 'Not authenticated') {
+                window.location.href = BASE_URL + '/index.html';
+            }
         });
 }
 

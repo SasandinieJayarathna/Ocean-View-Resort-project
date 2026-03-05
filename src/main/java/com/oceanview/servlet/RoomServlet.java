@@ -42,32 +42,32 @@ public class RoomServlet extends HttpServlet {
         // Set character encoding to UTF-8 so special characters display correctly
         resp.setCharacterEncoding("UTF-8");
 
-        // Create a RoomDAO to access room data from the database
-        RoomDAOImpl roomDAO = new RoomDAOImpl();
+        try {
+            // Create a RoomDAO to access room data from the database
+            RoomDAOImpl roomDAO = new RoomDAOImpl();
 
-        // Get the optional date and type parameters from the URL query string
-        String checkIn = req.getParameter("checkIn");     // e.g., "2025-06-15"
-        String checkOut = req.getParameter("checkOut");    // e.g., "2025-06-20"
-        String type = req.getParameter("type");            // e.g., "Deluxe" or "Standard"
+            // Get the optional date and type parameters from the URL query string
+            String checkIn = req.getParameter("checkIn");     // e.g., "2025-06-15"
+            String checkOut = req.getParameter("checkOut");    // e.g., "2025-06-20"
+            String type = req.getParameter("type");            // e.g., "DELUXE" or "STANDARD"
 
-        // This variable will hold our list of rooms (either all rooms or available rooms)
-        List<Room> rooms;
+            List<Room> rooms;
 
-        // Check if both check-in and check-out dates were provided and are not empty
-        if (checkIn != null && checkOut != null && !checkIn.isEmpty() && !checkOut.isEmpty()) {
-            // Get only the rooms that are available for the given date range
-            // LocalDate.parse() converts the date string to a LocalDate object
-            rooms = roomDAO.getAvailableRooms(
-                    LocalDate.parse(checkIn),
-                    LocalDate.parse(checkOut),
-                    type   // Optional room type filter (can be null)
-            );
-        } else {
-            // No date filters given, so get all rooms in the hotel
-            rooms = roomDAO.getAllRooms();
+            if (checkIn != null && checkOut != null && !checkIn.isEmpty() && !checkOut.isEmpty()) {
+                rooms = roomDAO.getAvailableRooms(
+                        LocalDate.parse(checkIn),
+                        LocalDate.parse(checkOut),
+                        type
+                );
+            } else {
+                rooms = roomDAO.getAllRooms();
+            }
+
+            resp.getWriter().write(gson.toJson(rooms));
+
+        } catch (Exception e) {
+            resp.setStatus(500);
+            resp.getWriter().write("{\"error\":\"Server error: " + e.getMessage().replace("\"", "'") + "\"}");
         }
-
-        // Convert the list of Room objects to JSON and write it to the response
-        resp.getWriter().write(gson.toJson(rooms));
     }
 }
