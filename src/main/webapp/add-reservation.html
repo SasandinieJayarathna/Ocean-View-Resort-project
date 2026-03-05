@@ -130,6 +130,45 @@
             margin-top: 1px;
         }
 
+        /* ── Meal Plan Selector ── */
+        .meal-plan-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin: 10px 0 5px;
+        }
+        .meal-plan-options {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            margin-bottom: 10px;
+        }
+        .meal-plan-btn {
+            padding: 5px 3px;
+            border: 1.5px solid #d0dae8;
+            border-radius: 6px;
+            background: #f8fafd;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.15s;
+        }
+        .meal-plan-btn:hover { border-color: #0077b6; background: #e8f4fb; }
+        .meal-plan-btn.active { border-color: #0077b6; background: #0077b6; color: #fff; }
+        .meal-plan-btn .plan-code {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+        .meal-plan-btn .plan-price {
+            display: block;
+            font-size: 0.65rem;
+            opacity: 0.85;
+            white-space: nowrap;
+        }
+        .meal-plan-btn.active .plan-price { opacity: 0.9; }
+
         /* ── Price + Select ── */
         .room-card-footer {
             display: flex;
@@ -244,6 +283,8 @@
                     <div class="card-header">Available Rooms</div>
                     <div id="roomGrid" class="room-grid"></div>
                     <input type="hidden" id="selectedRoomId" name="roomId">
+                    <!-- Stores selected meal plan: RO / BB / HB / FB -->
+                    <input type="hidden" id="selectedMealPlan" name="mealPlan" value="RO">
                 </div>
 
                 <div class="form-group" style="margin-top: 1rem;">
@@ -389,6 +430,28 @@
                                 return '<li>' + item + '</li>';
                             }).join('');
 
+                            // Build meal plan price buttons (RO / BB / HB / FB)
+                            var mealPlanHtml =
+                                '<div class="meal-plan-label">Select Meal Plan</div>' +
+                                '<div class="meal-plan-options">' +
+                                    '<div class="meal-plan-btn active" onclick="selectMealPlan(this,\'RO\',' + room.roomId + ')">' +
+                                        '<span class="plan-code">RO</span>' +
+                                        '<span class="plan-price">LKR ' + formatCurrency(room.pricePerNight) + '</span>' +
+                                    '</div>' +
+                                    (room.bbPrice ? '<div class="meal-plan-btn" onclick="selectMealPlan(this,\'BB\',' + room.roomId + ')">' +
+                                        '<span class="plan-code">BB</span>' +
+                                        '<span class="plan-price">LKR ' + formatCurrency(room.bbPrice) + '</span>' +
+                                    '</div>' : '') +
+                                    (room.hbPrice ? '<div class="meal-plan-btn" onclick="selectMealPlan(this,\'HB\',' + room.roomId + ')">' +
+                                        '<span class="plan-code">HB</span>' +
+                                        '<span class="plan-price">LKR ' + formatCurrency(room.hbPrice) + '</span>' +
+                                    '</div>' : '') +
+                                    (room.fbPrice ? '<div class="meal-plan-btn" onclick="selectMealPlan(this,\'FB\',' + room.roomId + ')">' +
+                                        '<span class="plan-code">FB</span>' +
+                                        '<span class="plan-price">LKR ' + formatCurrency(room.fbPrice) + '</span>' +
+                                    '</div>' : '') +
+                                '</div>';
+
                             var card = document.createElement('div');
                             card.className = 'room-card';
                             card.dataset.roomId = room.roomId;
@@ -403,8 +466,9 @@
                                         ? '<button type="button" class="view-details-link" onclick="toggleDetails(this)">View Details ↓</button>' +
                                           '<div class="room-details-panel"><ul class="details-list">' + detailItems + '</ul></div>'
                                         : '') +
+                                    mealPlanHtml +
                                     '<div class="room-card-footer">' +
-                                        '<div class="room-price-tag">LKR ' + formatCurrency(room.pricePerNight) + ' <span>/ night</span></div>' +
+                                        '<div class="room-price-tag" id="price-' + room.roomId + '">LKR ' + formatCurrency(room.pricePerNight) + ' <span>/ night · Room Only</span></div>' +
                                         '<button type="button" class="btn-select-room" data-room-id="' + room.roomId + '">Select Room</button>' +
                                     '</div>' +
                                 '</div>';
@@ -429,6 +493,33 @@
                 .catch(function() { showAlert('error', 'Failed to load rooms'); });
         }
 
+        // ── Meal plan labels for display ─────────────────────────────────────
+        var planLabels = { RO: 'Room Only', BB: 'Bed & Breakfast', HB: 'Half Board', FB: 'Full Board' };
+
+        // ── Select a meal plan button on a card ──────────────────────────────
+        // Updates the active button highlight, the price tag, and the hidden mealPlan field.
+        // Only updates the mealPlan hidden input if this card's room is already selected.
+        function selectMealPlan(btn, planCode, roomId) {
+            // Highlight the clicked plan button, clear others in this card
+            var card = btn.closest('.room-card');
+            card.querySelectorAll('.meal-plan-btn').forEach(function(b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+
+            // Update the price tag shown at the bottom of the card
+            var priceTag = document.getElementById('price-' + roomId);
+            if (priceTag) {
+                priceTag.innerHTML = btn.querySelector('.plan-price').textContent + ' <span>/ night · ' + (planLabels[planCode] || planCode) + '</span>';
+            }
+
+            // If this card is already the selected room, update the hidden meal plan field
+            var currentRoomId = document.getElementById('selectedRoomId').value;
+            if (currentRoomId == roomId) {
+                document.getElementById('selectedMealPlan').value = planCode;
+            }
+            // Store the chosen plan on the card so it gets applied when the room is selected
+            card.dataset.mealPlan = planCode;
+        }
+
         // ── Toggle View Details panel ────────────────────────────────────────
         function toggleDetails(btn) {
             var panel = btn.nextElementSibling;
@@ -437,10 +528,13 @@
         }
 
         // ── Select a room card ───────────────────────────────────────────────
+        // Marks the card as selected and copies its chosen meal plan to the hidden field.
         function selectRoom(card, roomId) {
             document.querySelectorAll('.room-card').forEach(function(c) { c.classList.remove('selected'); });
             card.classList.add('selected');
             document.getElementById('selectedRoomId').value = roomId;
+            // Carry over whichever meal plan button is active on this card (default RO)
+            document.getElementById('selectedMealPlan').value = card.dataset.mealPlan || 'RO';
         }
 
         // ── Form submission ──────────────────────────────────────────────────

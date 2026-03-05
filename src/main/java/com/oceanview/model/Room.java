@@ -19,9 +19,12 @@ public abstract class Room {
     // These are the private fields that store room information.
     // They are private for encapsulation — other classes use getters/setters to access them.
     private int roomId;            // unique ID for this room in the database
-    private String roomNumber;     // the room number displayed on the door, e.g. "101"
+    private String roomNumber;     // descriptive code, e.g. "STD-TW", "DLX-OV"
     private String roomType;       // the type of room: "STANDARD", "DELUXE", or "SUITE"
-    private double pricePerNight;  // how much one night costs in this room
+    private double pricePerNight;  // Room Only (RO) rate per night in LKR
+    private double bbPrice;        // Bed & Breakfast rate per night in LKR
+    private double hbPrice;        // Half Board (breakfast + dinner) rate per night in LKR
+    private double fbPrice;        // Full Board (all meals included) rate per night in LKR
     private boolean isAvailable;   // true if the room is free to book, false if occupied
     private String description;    // a short description of the room's features
     private int maxOccupancy;      // the maximum number of guests allowed in this room
@@ -78,14 +81,44 @@ public abstract class Room {
         this.roomType = roomType;
     }
 
-    // getter for pricePerNight — returns how much one night costs
+    // getter for pricePerNight — returns the Room Only (RO) nightly rate
     public double getPricePerNight() {
         return pricePerNight;
     }
 
-    // setter for pricePerNight — lets us update the nightly rate
+    // setter for pricePerNight — lets us update the Room Only nightly rate
     public void setPricePerNight(double pricePerNight) {
         this.pricePerNight = pricePerNight;
+    }
+
+    // getter for bbPrice — returns the Bed & Breakfast rate per night
+    public double getBbPrice() {
+        return bbPrice;
+    }
+
+    // setter for bbPrice — lets us set the Bed & Breakfast nightly rate
+    public void setBbPrice(double bbPrice) {
+        this.bbPrice = bbPrice;
+    }
+
+    // getter for hbPrice — returns the Half Board (breakfast + dinner) rate per night
+    public double getHbPrice() {
+        return hbPrice;
+    }
+
+    // setter for hbPrice — lets us set the Half Board nightly rate
+    public void setHbPrice(double hbPrice) {
+        this.hbPrice = hbPrice;
+    }
+
+    // getter for fbPrice — returns the Full Board (all meals) rate per night
+    public double getFbPrice() {
+        return fbPrice;
+    }
+
+    // setter for fbPrice — lets us set the Full Board nightly rate
+    public void setFbPrice(double fbPrice) {
+        this.fbPrice = fbPrice;
     }
 
     // getter for isAvailable — returns true if the room can be booked

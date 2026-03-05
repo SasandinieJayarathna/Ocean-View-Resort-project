@@ -12,6 +12,7 @@
   - OVR Galle logo branding
 - **Room Reservation Management** — Create, view, search, and cancel reservations
 - **Automated Billing** — Generate invoices with multiple pricing strategies (Standard, Seasonal, Loyalty)
+- **Meal Plan Pricing** — Four meal plan options per room: Room Only (RO), Bed & Breakfast (BB), Half Board (HB), Full Board (FB)
   - Professional invoice headers with resort logo (OVR Galle)
   - Contact information display (landline, WhatsApp)
   - Detailed invoice footers with payment terms and resort information
@@ -246,6 +247,7 @@ This project follows [Semantic Versioning](https://semver.org/):
 | v1.6.0 | CI/CD pipeline |
 | v2.0.0 | Production-ready release |
 | v2.1.0 | Enhanced login page, SVG logo, professional branding |
+| v2.2.0 | Meal plan pricing (RO/BB/HB/FB), updated Sri Lankan resort room categories |
 
 ---
 

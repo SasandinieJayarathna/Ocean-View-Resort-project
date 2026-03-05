@@ -232,7 +232,10 @@ public class RoomDAOImpl implements RoomDAO {
         // Set all the fields from the database row into the Room object
         room.setRoomId(rs.getInt("room_id"));
         room.setRoomNumber(rs.getString("room_number"));
-        room.setPricePerNight(rs.getDouble("price_per_night"));
+        room.setPricePerNight(rs.getDouble("price_per_night")); // Room Only rate
+        room.setBbPrice(rs.getDouble("bb_price"));              // Bed & Breakfast rate
+        room.setHbPrice(rs.getDouble("hb_price"));              // Half Board rate
+        room.setFbPrice(rs.getDouble("fb_price"));              // Full Board rate
         room.setAvailable(rs.getBoolean("is_available"));
         room.setDescription(rs.getString("description"));
         room.setMaxOccupancy(rs.getInt("max_occupancy"));

@@ -34,9 +34,12 @@ CREATE TABLE IF NOT EXISTS users (
 -- =============================================================
 CREATE TABLE IF NOT EXISTS rooms (
     room_id         INT AUTO_INCREMENT PRIMARY KEY,  -- room_id: unique ID, auto-incremented by MySQL
-    room_number     VARCHAR(10) NOT NULL UNIQUE,     -- room_number: the physical room number (e.g., '101', '302')
+    room_number     VARCHAR(10) NOT NULL UNIQUE,     -- room_number: descriptive code e.g. 'STD-TW', 'DLX-OV'
     room_type       ENUM('STANDARD','DELUXE','SUITE') NOT NULL, -- room_type: category of the room
-    price_per_night DECIMAL(10,2) NOT NULL,          -- price_per_night: cost per night in LKR
+    price_per_night DECIMAL(10,2) NOT NULL,          -- price_per_night: Room Only (RO) rate per night in LKR
+    bb_price        DECIMAL(10,2),                   -- bb_price: Bed & Breakfast rate per night in LKR
+    hb_price        DECIMAL(10,2),                   -- hb_price: Half Board (breakfast + dinner) rate per night in LKR
+    fb_price        DECIMAL(10,2),                   -- fb_price: Full Board (all meals) rate per night in LKR
     is_available    BOOLEAN DEFAULT TRUE,            -- is_available: FALSE means the room is out of service
     description     TEXT,                            -- description: a short text describing the room's features
     max_occupancy   INT DEFAULT 2,                   -- max_occupancy: maximum number of guests allowed
@@ -204,16 +207,17 @@ INSERT INTO users (username, password_hash, full_name, email, role) VALUES
 ('admin', '$2a$10$95U9YTNkHjTTjyNFW2epZOaG87vizKlKzDVVPONfp7SvA1MnUJfjC', 'System Administrator', 'admin@oceanview.lk', 'ADMIN'),
 ('staff1', '$2a$10$ZsDbWJXzUYi5iQ8iSZ7b0ee0NeGMb4Y.GwXAuhv2U.B2VdIyOwURK', 'Reception Staff', 'staff@oceanview.lk', 'STAFF');
 
--- 8 rooms: 3 standard, 3 deluxe, 2 suites (realistic Sri Lankan resort pricing in LKR)
--- Standard rooms : LKR  8,500 - 11,000 per night, max 2 guests
--- Deluxe rooms   : LKR 15,000 - 20,000 per night, max 3 guests
--- Suites         : LKR 35,000 - 55,000 per night, max 3-4 guests
-INSERT INTO rooms (room_number, room_type, price_per_night, description, max_occupancy) VALUES
-('STD-TW', 'STANDARD',  8500.00, 'Standard Room with Twin Beds',          2),
-('STD-DBL','STANDARD',  8500.00, 'Standard Room with Double Bed',          2),
-('STD-BAL','STANDARD', 11000.00, 'Standard Room with Balcony',             2),
-('DLX-OV', 'DELUXE',  15000.00, 'Deluxe Ocean View Room',                 3),
-('DLX-PV', 'DELUXE',  16000.00, 'Deluxe Pool View Room with Terrace',     3),
-('DLX-JQ', 'DELUXE',  20000.00, 'Deluxe Room with Private Jacuzzi',       3),
-('STE-JR', 'SUITE',   35000.00, 'Junior Suite with Ocean Panorama',        3),
-('STE-PR', 'SUITE',   55000.00, 'Presidential Suite with Private Pool',    4);
+-- 8 rooms: 3 standard, 3 deluxe, 2 suites — all prices in LKR per night
+-- Meal plans: RO = Room Only | BB = Bed & Breakfast | HB = Half Board | FB = Full Board
+-- Standard rooms : RO from LKR 25,000  | max 2 guests
+-- Deluxe rooms   : RO from LKR 45,000  | max 3 guests
+-- Suites         : RO from LKR 80,000  | max 3-4 guests
+INSERT INTO rooms (room_number, room_type, price_per_night, bb_price, hb_price, fb_price, description, max_occupancy) VALUES
+('STD-TW', 'STANDARD',  25000.00,  28000.00,  34500.00,  38000.00, 'Standard Room with Twin Beds',          2),
+('STD-DBL','STANDARD',  25000.00,  28000.00,  34500.00,  38000.00, 'Standard Room with Double Bed',          2),
+('STD-BAL','STANDARD',  30000.00,  33500.00,  40500.00,  44500.00, 'Standard Room with Balcony',             2),
+('DLX-OV', 'DELUXE',   45000.00,  49000.00,  57000.00,  62500.00, 'Deluxe Ocean View Room',                 3),
+('DLX-PV', 'DELUXE',   48000.00,  52000.00,  60500.00,  66000.00, 'Deluxe Pool View Room with Terrace',     3),
+('DLX-JQ', 'DELUXE',   55000.00,  60000.00,  68500.00,  74000.00, 'Deluxe Room with Private Jacuzzi',       3),
+('STE-JR', 'SUITE',    80000.00,  86500.00,  97000.00, 105000.00, 'Junior Suite with Ocean Panorama',        3),
+('STE-PR', 'SUITE',   130000.00, 139500.00, 153000.00, 163000.00, 'Presidential Suite with Private Pool',    4);

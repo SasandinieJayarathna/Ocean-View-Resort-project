@@ -120,7 +120,7 @@ cp target/oceanview-reservation.war /path/to/tomcat/webapps/
 
 | Aspect | Status |
 |--------|--------|
-| Version | 2.1.0 |
+| Version | 2.2.0 |
 | Build | ✅ Success |
 | Deployment | ✅ Ready |
 | Testing | ✅ Complete |

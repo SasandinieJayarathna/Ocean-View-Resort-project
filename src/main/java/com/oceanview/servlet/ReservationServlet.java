@@ -138,6 +138,8 @@ public class ReservationServlet extends HttpServlet {
         String checkInStr = req.getParameter("checkInDate");
         String checkOutStr = req.getParameter("checkOutDate");
         String specialRequests = req.getParameter("specialRequests");
+        // mealPlan: RO (Room Only), BB (Bed & Breakfast), HB (Half Board), or FB (Full Board)
+        String mealPlan = req.getParameter("mealPlan");
 
         // ---- Validation: We use InputValidator to check the data before saving to the database ----
 
@@ -187,7 +189,10 @@ public class ReservationServlet extends HttpServlet {
         // Parse the date strings into LocalDate objects (e.g., "2025-06-15" becomes a date)
         reservation.setCheckInDate(LocalDate.parse(checkInStr));
         reservation.setCheckOutDate(LocalDate.parse(checkOutStr));
-        reservation.setSpecialRequests(specialRequests != null ? specialRequests.trim() : "");
+        // Prepend the selected meal plan to specialRequests so it is stored with the reservation
+        String plan = (mealPlan != null && !mealPlan.isEmpty()) ? mealPlan.trim() : "RO";
+        String requests = (specialRequests != null) ? specialRequests.trim() : "";
+        reservation.setSpecialRequests("Meal Plan: " + plan + (requests.isEmpty() ? "" : " | " + requests));
 
         // Get the logged-in user's ID from the session so we know who created this reservation
         HttpSession session = req.getSession(false);
