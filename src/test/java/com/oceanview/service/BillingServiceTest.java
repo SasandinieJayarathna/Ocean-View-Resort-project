@@ -97,4 +97,22 @@ class BillingServiceTest {
         Bill bill = service.generateBill(1, "STANDARD", 1);
         assertNull(bill);
     }
+
+    @Test @DisplayName("TC-BS006: getBillByReservationId delegates to DAO")
+    void getBillByReservationId() {
+        Bill bill = new Bill();
+        bill.setBillId(1);
+        when(billDAO.getBillByReservationId(10)).thenReturn(bill);
+        Bill result = service.getBillByReservationId(10);
+        assertNotNull(result);
+        assertEquals(1, result.getBillId());
+    }
+
+    @Test @DisplayName("TC-BS007: Null strategy type defaults to STANDARD")
+    void nullStrategyType() {
+        setupMocks();
+        Bill bill = service.generateBill(1, null, 1);
+        assertNotNull(bill);
+        assertEquals("STANDARD", bill.getBillingStrategy());
+    }
 }
